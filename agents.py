@@ -16,8 +16,10 @@ def create_agents(nx):
 
     # CREATE GRAPHS FOR EACH TEAM
     greenTeam_graph = nx.parse_edgelist(data, delimiter=',', create_using=Graphtype, nodetype=int, data=(('weight', float),))
-    blueTeam_graph = nx.Graph()
     redTeam_graph = nx.Graph()
+    redTeam_graph.add_node(26)
+    blueTeam_graph = nx.Graph()
+    blueTeam_graph.add_node(27)
 
 
 
@@ -32,9 +34,10 @@ def create_agents(nx):
     blueTeam_graph.graph.update(attrs_blue)
     redTeam_graph.graph.update(attrs_blue)
 
-    
+
     # nx.set_node_attributes(greenTeam_graph, attrs_green)
 
     # print(nx.info(greenTeam_graph))
     nx.draw(greenTeam_graph)
+    nx.draw(redTeam_graph)
     plt.show()
