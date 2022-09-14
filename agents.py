@@ -8,10 +8,33 @@ def create_agents(nx):
     # g = nx.from_pandas_edgelist(df, edge_attr='weight', create_using=Graphtype)
 
     data = open('network-2.csv', "r")
-    # skip first line
     next(data, None)
-    g = nx.parse_edgelist(data, delimiter=',', create_using=Graphtype, nodetype=int, data=(('weight', float),))
+    data2 = open('node-attributes', "r")
+    next(data2, None)
+    # print(data2)
+    # skip first line
 
-    print(nx.info(g))
-    nx.draw(g)
+    # CREATE GRAPHS FOR EACH TEAM
+    greenTeam_graph = nx.parse_edgelist(data, delimiter=',', create_using=Graphtype, nodetype=int, data=(('weight', float),))
+    blueTeam_graph = nx.Graph()
+    redTeam_graph = nx.Graph()
+
+
+
+
+    attrs_green = {'team': 'green'}
+    attrs_blue = {'team': 'blue'}
+    attrs_red = {'team': 'red'}
+    attrs_grey_good = {'team': 'grey-good'}
+    attrs_grey_bad = {'team': 'grey-bad'}
+
+    greenTeam_graph.graph.update(attrs_green)
+    blueTeam_graph.graph.update(attrs_blue)
+    redTeam_graph.graph.update(attrs_blue)
+
+    
+    # nx.set_node_attributes(greenTeam_graph, attrs_green)
+
+    # print(nx.info(greenTeam_graph))
+    nx.draw(greenTeam_graph)
     plt.show()
