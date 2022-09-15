@@ -1,6 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-def create_agents(nx):
+import networkx as nx
+def create_agents():
     print("creating agents...")
 
     # df = pd.read_csv('network-2.csv')
@@ -15,29 +16,35 @@ def create_agents(nx):
     # skip first line
 
     # CREATE GRAPHS FOR EACH TEAM
-    greenTeam_graph = nx.parse_edgelist(data, delimiter=',', create_using=Graphtype, nodetype=int, data=(('weight', float),))
+    greenTeam_graph = nx.parse_edgelist(data, delimiter=',', create_using=Graphtype, nodetype=int,
+                                        data=(('weight', float),))
     redTeam_graph = nx.Graph()
     redTeam_graph.add_node(26)
     blueTeam_graph = nx.Graph()
     blueTeam_graph.add_node(27)
+    greyTeam_good_graph = nx.Graph()
+    greyTeam_bad_graph = nx.Graph()
+    greyTeam_good_graph.add_nodes_from([29, 30, 32, 34, 36])
+    greyTeam_bad_graph.add_nodes_from([28, 31, 33, 35, 37])
+
+    nx.set_node_attributes(greenTeam_graph, {"green"}, name="team")
+    nx.set_node_attributes(redTeam_graph, {"red"}, name="team")
+    nx.set_node_attributes(blueTeam_graph, {"blue"}, name="team")
+    nx.set_node_attributes(greyTeam_good_graph, {"grey-good"}, name="team")
+    nx.set_node_attributes(greyTeam_bad_graph, {"grey-bad"}, name="team")
 
 
+    # COMBINE ALL TEAMS INTO ONE GRAPH
+    temp = nx.compose(redTeam_graph, blueTeam_graph)
+    grey_temp = nx.compose(greyTeam_good_graph, greyTeam_bad_graph)
+    temp2 = nx.compose(temp, grey_temp)
+    game_network = nx.compose(greenTeam_graph, temp2)
 
+    print(game_network.nodes(data=True))
 
-    attrs_green = {'team': 'green'}
-    attrs_blue = {'team': 'blue'}
-    attrs_red = {'team': 'red'}
-    attrs_grey_good = {'team': 'grey-good'}
-    attrs_grey_bad = {'team': 'grey-bad'}
-
-    greenTeam_graph.graph.update(attrs_green)
-    blueTeam_graph.graph.update(attrs_blue)
-    redTeam_graph.graph.update(attrs_blue)
-
-
-    # nx.set_node_attributes(greenTeam_graph, attrs_green)
+    # print(game_network.nodes(data=True))
 
     # print(nx.info(greenTeam_graph))
-    nx.draw(greenTeam_graph)
-    nx.draw(redTeam_graph)
-    plt.show()
+    # nx.draw(greenTeam_graph)
+    # nx.draw(redTeam_graph)
+    # plt.show()
