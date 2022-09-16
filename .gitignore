@@ -1,2 +1,7 @@
 /venv
 .DS_STORE
+.vscode
+.idea
+/__venv__
+/.vscode
+/.idea
