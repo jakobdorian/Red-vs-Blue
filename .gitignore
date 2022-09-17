@@ -5,3 +5,7 @@
 /__venv__
 /.vscode
 /.idea
+__pycache__/agents.cpython-310.pyc
+__pycache__/game.cpython-310.pyc
+/__pycache__
+__pycache__
