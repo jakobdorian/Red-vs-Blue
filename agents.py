@@ -27,12 +27,12 @@ def create_agents():
     greyTeam_good_graph.add_nodes_from([29, 30, 32, 34, 36])
     greyTeam_bad_graph.add_nodes_from([28, 31, 33, 35, 37])
 
+    # SET THE TEAM COLOURS TO EACH NODE
     nx.set_node_attributes(greenTeam_graph, {"green"}, name="team")
     nx.set_node_attributes(redTeam_graph, {"red"}, name="team")
     nx.set_node_attributes(blueTeam_graph, {"blue"}, name="team")
     nx.set_node_attributes(greyTeam_good_graph, {"grey-good"}, name="team")
     nx.set_node_attributes(greyTeam_bad_graph, {"grey-bad"}, name="team")
-
 
     # COMBINE ALL TEAMS INTO ONE GRAPH
     temp = nx.compose(redTeam_graph, blueTeam_graph)
@@ -40,11 +40,18 @@ def create_agents():
     temp2 = nx.compose(temp, grey_temp)
     game_network = nx.compose(greenTeam_graph, temp2)
 
-    print(game_network.nodes(data=True))
-
     # print(game_network.nodes(data=True))
 
-    # print(nx.info(greenTeam_graph))
+    # g_list = nx.to_dict_of_lists(game_network)
+    #
+    # print(g_list)
+
+    return game_network
+
+
+
+
+
     # nx.draw(greenTeam_graph)
-    # nx.draw(redTeam_graph)
+    # nx.draw(game_network)
     # plt.show()
