@@ -4,5 +4,5 @@ from game import start_game
 print("main is running")
 
 if __name__ == '__main__':
-   game_network = create_agents()
-   start_game(game_network)
+   game_network, green_team, red_team, blue_team, grey_good_team, grey_bad_team = create_agents()
+   start_game(game_network, green_team, red_team, blue_team, grey_good_team, grey_bad_team)

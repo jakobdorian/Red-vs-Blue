@@ -46,7 +46,7 @@ def create_agents():
     #
     # print(g_list)
 
-    return game_network
+    return game_network, greenTeam_graph, redTeam_graph, blueTeam_graph, greyTeam_good_graph, greyTeam_good_graph
 
 
 
