@@ -1,6 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import networkx as nx
+import numpy as np
 def create_agents():
     print("creating agents...")
 
@@ -29,6 +30,9 @@ def create_agents():
 
     # SET THE TEAM COLOURS TO EACH NODE
     nx.set_node_attributes(greenTeam_graph, {"green"}, name="team")
+    nx.set_node_attributes(greenTeam_graph, {"default opinion"}, name="opinion")
+    # nx.set_node_attributes(greenTeam_graph, {-0.5, 0.5}, name="certainty")
+
     nx.set_node_attributes(redTeam_graph, {"red"}, name="team")
     nx.set_node_attributes(blueTeam_graph, {"blue"}, name="team")
     nx.set_node_attributes(greyTeam_good_graph, {"grey-good"}, name="team")
