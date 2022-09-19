@@ -21,6 +21,8 @@ def redgreen_interaction(green_agent, red_agent):
     # print(current_interaction.nodes(data=True))
     # nx.draw(current_interaction)
     # plt.show()
+
+    # SET CONFIDENCE FOR EACH NODE RANDOMLY
     for node in current_interaction.nodes():
         random_interval = random.choice([-1, 1])
         if random_interval == -1:
