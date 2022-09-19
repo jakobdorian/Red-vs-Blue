@@ -23,18 +23,27 @@ def redgreen_interaction(green_agent, red_agent):
     # plt.show()
 
     # SET CONFIDENCE FOR EACH NODE RANDOMLY
+    certain = 0.0
+    uncertain = 0.0
     for node in current_interaction.nodes():
         random_interval = random.choice([-1, 1])
         if random_interval == -1:
             nx.set_node_attributes(current_interaction, {node: "certain"}, name="opinion")
+            certain = certain + 1.0
         elif random_interval == 1:
             nx.set_node_attributes(current_interaction, {node: "uncertain"}, name="opinion")
+            uncertain = uncertain + 1.0
+    if certain > uncertain:
+        temp = uncertain / certain
+        temp = temp * 100
+        print(str(round(temp)) + "% of", "green team is certain")
+    else:
+        temp = certain / uncertain
+        temp = temp * 100
+        print(str(round(temp)) + "% of", "green team is uncertain")
 
-    print(current_interaction.nodes(data=True))
+    # print(current_interaction.nodes(data=True))
 
-
-        # print(node)
-        # print(current_interaction.nodes[node])
 
 
 
