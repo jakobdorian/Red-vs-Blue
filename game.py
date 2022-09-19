@@ -36,11 +36,17 @@ def redgreen_interaction(green_agent, red_agent):
     if certain > uncertain:
         temp = uncertain / certain
         temp = temp * 100
+        temp2 = 100 - temp
         print(str(round(temp)) + "% of", "green team is certain")
+        print(str(round(temp2)) + "% of", "green team is uncertain")
+        # print(temp2)
     else:
         temp = certain / uncertain
         temp = temp * 100
+        temp2 = 100 - temp
         print(str(round(temp)) + "% of", "green team is uncertain")
+        print(str(round(temp2)) + "% of", "green team is certain")
+
 
     # print(current_interaction.nodes(data=True))
 
