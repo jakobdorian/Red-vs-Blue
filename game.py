@@ -18,6 +18,9 @@ def start_game(network, green_team, red_team, blue_team, grey_good_team, grey_ba
 def redgreen_interaction(green_agent, red_agent):
     # combine red and green nodes into one graph
     current_interaction = nx.compose(green_agent, red_agent)
+    # list of levels of potency messages
+    red_msgs = ["lvl1 potency", "lvl2 potency", "lvl3 potency", "lvl4 potency", "lvl5 potency"]
+
     # print(current_interaction.nodes(data=True))
     # nx.draw(current_interaction)
     # plt.show()
@@ -26,12 +29,15 @@ def redgreen_interaction(green_agent, red_agent):
     certain = 0.0
     uncertain = 0.0
     for node in current_interaction.nodes():
+        # randomly select a potency message
+        current_redmsg = random.choice(red_msgs)
+        nx.set_node_attributes(green_agent, {node: current_redmsg}, name="opinion")
         random_interval = random.choice([-1, 1])
         if random_interval == -1:
-            nx.set_node_attributes(current_interaction, {node: "certain"}, name="opinion")
+            nx.set_node_attributes(current_interaction, {node: "certain"}, name="confidence")
             certain = certain + 1.0
         elif random_interval == 1:
-            nx.set_node_attributes(current_interaction, {node: "uncertain"}, name="opinion")
+            nx.set_node_attributes(current_interaction, {node: "uncertain"}, name="confidence")
             uncertain = uncertain + 1.0
     if certain > uncertain:
         temp = uncertain / certain
@@ -47,6 +53,10 @@ def redgreen_interaction(green_agent, red_agent):
         print(str(round(temp)) + "% of", "green team is uncertain")
         print(str(round(temp2)) + "% of", "green team is certain")
 
+    # print(green_agent.nodes(data=True))
+
+def update_rules():
+    print("")
 
     # print(current_interaction.nodes(data=True))
 
