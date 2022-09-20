@@ -53,8 +53,13 @@ def redgreen_interaction(green_agent, red_agent):
         print(str(round(temp)) + "% of", "green team is uncertain")
         print(str(round(temp2)) + "% of", "green team is certain")
 
+    # print(current_interaction.nodes.data("confidence"))
     # print(green_agent.nodes(data=True))
-
+    for node in current_interaction.nodes():
+        if current_interaction.nodes[node]["confidence"] == "certain":
+            print(current_interaction.nodes[node])
+        elif current_interaction.nodes[node]["confidence"] == "uncertain":
+            print(current_interaction.nodes[node])
 def update_rules():
     print("")
 
