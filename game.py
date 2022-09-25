@@ -2,6 +2,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import random
 import pandas as pd
+import numpy as np
 def start_game(network, green_team, red_team, blue_team, grey_good_team, grey_bad_team):
     print("game is starting...")
     # print(network.nodes(data=True))
@@ -33,6 +34,7 @@ def redgreen_interaction(green_agent, red_agent):
         current_redmsg = random.choice(red_msgs)
         nx.set_node_attributes(green_agent, {node: current_redmsg}, name="opinion")
         random_interval = random.choice([-1, 1])
+        current_confidence = get_confidence(green_agent)
         if random_interval == -1:
             nx.set_node_attributes(current_interaction, {node: "certain"}, name="confidence")
             certain = certain + 1.0
@@ -55,13 +57,21 @@ def redgreen_interaction(green_agent, red_agent):
 
     # print(current_interaction.nodes.data("confidence"))
     # print(green_agent.nodes(data=True))
-    for node in current_interaction.nodes():
-        if current_interaction.nodes[node]["confidence"] == "certain":
-            print(current_interaction.nodes[node])
-        elif current_interaction.nodes[node]["confidence"] == "uncertain":
-            print(current_interaction.nodes[node])
+    # for node in current_interaction.nodes():
+    #     if current_interaction.nodes[node]["confidence"] == "certain":
+    #         print(current_interaction.nodes[node])
+    #     elif current_interaction.nodes[node]["confidence"] == "uncertain":
+    #         print(current_interaction.nodes[node])
+
 def update_rules():
     print("")
+
+
+def get_confidence(agents):
+    val = [np.random.choice(agents, size=len(agents), replace=True).mean() for i in range(1000)]
+    val2 = np.percentile(val, [100 * (1 - 0.95) / 2, 100 * (1 - (1 - 0.95) / 2)])
+    # print(val2)
+    return val2
 
 def minimax(current_depth, current_nodeindex, max_depth, target_depth, scores):
     if current_depth == target_depth:
