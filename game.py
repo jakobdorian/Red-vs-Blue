@@ -63,6 +63,10 @@ def redgreen_interaction(green_agent, red_agent):
 def update_rules():
     print("")
 
+def minimax(current_depth, current_nodeindex, max_depth, target_depth, scores):
+    if current_depth == target_depth:
+        return scores[current_nodeindex]
+
     # print(current_interaction.nodes(data=True))
 
 
