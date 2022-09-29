@@ -11,17 +11,22 @@ def start_game(network, green_team, red_team, blue_team, grey_good_team, grey_ba
     # print(blue_team)
     # print(grey_good_team)
     # print(grey_bad_team)
-    redgreen_interaction(green_team, red_team)
+    redgreen_interaction = interaction_round(green_team, red_team)
+
+    # agents after redgreen interation
+    current_green_agents = lose_followers(redgreen_interaction)
+    print(current_green_agents)
 
     g_dict = nx.to_dict_of_dicts(network)
 
 
-def redgreen_interaction(green_agent, red_agent):
+def interaction_round(green_agents, interacting_agent):
     # combine red and green nodes into one graph
-    current_interaction = nx.compose(green_agent, red_agent)
+    current_interaction = nx.compose(green_agents, interacting_agent)
     # list of levels of potency messages
-    red_msgs = ["lvl1 potency", "lvl2 potency", "lvl3 potency", "lvl4 potency", "lvl5 potency"]
-
+    # red_msgs = ["lvl1 potency", "lvl2 potency", "lvl3 potency", "lvl4 potency", "lvl5 potency"]
+    red_msgs_low = ["lvl1 potency", "lvl2 potency", "lvl3 potency"]
+    red_msgs_high = ["lvl3 potency", "lvl4 potency", "lvl5 potency"]
     # print(current_interaction.nodes(data=True))
     # nx.draw(current_interaction)
     # plt.show()
@@ -31,16 +36,20 @@ def redgreen_interaction(green_agent, red_agent):
     uncertain = 0.0
     for node in current_interaction.nodes():
         # randomly select a potency message
-        current_redmsg = random.choice(red_msgs)
-        nx.set_node_attributes(green_agent, {node: current_redmsg}, name="opinion")
+        # current_redmsg = random.choice(red_msgs)
+        # nx.set_node_attributes(agent1, {node: current_redmsg}, name="opinion")
         random_interval = random.choice([-1, 1])
-        current_confidence = get_confidence(green_agent)
+        current_confidence = get_confidence(green_agents)
         if random_interval == -1:
-            nx.set_node_attributes(current_interaction, {node: "certain"}, name="confidence")
+            nx.set_node_attributes(green_agents, {node: "certain"}, name="confidence")
             certain = certain + 1.0
+            current_redmsg = random.choice(red_msgs_high)
+            nx.set_node_attributes(green_agents, {node: current_redmsg}, name="opinion")
         elif random_interval == 1:
-            nx.set_node_attributes(current_interaction, {node: "uncertain"}, name="confidence")
+            nx.set_node_attributes(green_agents, {node: "uncertain"}, name="confidence")
             uncertain = uncertain + 1.0
+            current_redmsg = random.choice(red_msgs_low)
+            nx.set_node_attributes(green_agents, {node: current_redmsg}, name="opinion")
     if certain > uncertain:
         temp = uncertain / certain
         temp = temp * 100
@@ -54,6 +63,8 @@ def redgreen_interaction(green_agent, red_agent):
         temp2 = 100 - temp
         print(str(round(temp)) + "% of", "green team is uncertain")
         print(str(round(temp2)) + "% of", "green team is certain")
+
+    return green_agents
 
     # print(current_interaction.nodes.data("confidence"))
     # print(green_agent.nodes(data=True))
@@ -73,9 +84,18 @@ def get_confidence(agents):
     # print(val2)
     return val2
 
+def lose_followers(agents):
+    # make a copy of graph you can iterate over
+    temp_copy = agents.copy()
+    for node in temp_copy.nodes():
+        # if a message is highly potent, then remove it from the current graph
+        if agents.nodes[node]["opinion"] == "lvl5 potency":
+            agents.remove_node(node)
+    return agents
 def minimax(current_depth, current_nodeindex, max_depth, target_depth, scores):
     if current_depth == target_depth:
         return scores[current_nodeindex]
+
 
     # print(current_interaction.nodes(data=True))
 
