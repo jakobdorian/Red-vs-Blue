@@ -15,7 +15,9 @@ def start_game(network, green_team, red_team, blue_team, grey_good_team, grey_ba
 
     # agents after redgreen interation
     current_green_agents = lose_followers(redgreen_interaction)
-    print(current_green_agents)
+
+    blue_interaction_round(current_green_agents, blue_team, grey_good_team, grey_bad_team)
+    # print(current_green_agents)
 
     g_dict = nx.to_dict_of_dicts(network)
 
@@ -74,6 +76,21 @@ def interaction_round(green_agents, interacting_agent):
     #     elif current_interaction.nodes[node]["confidence"] == "uncertain":
     #         print(current_interaction.nodes[node])
 
+
+def blue_interaction_round(green_agents, blue_agent, grey_good, grey_bad):
+    energy = 0
+    current_interaction = nx.compose(green_agents, blue_agent)
+    # go through each green agent in the network and check their confidence level, if they are certain
+    for node in current_interaction.nodes():
+        # make sure blue team doesn't use more excessive energy interacting with green team
+        if energy < 10:
+            if "confidence" in current_interaction.nodes[node]:
+                if current_interaction.nodes[node]["confidence"] == "certain":
+                    energy = energy + 1
+                    if energy == 10:
+                        print("blue team has used up all of its energy!")
+                        break
+                    # print(current_interaction.nodes[node])
 def update_rules():
     print("")
 
