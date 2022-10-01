@@ -25,8 +25,17 @@ def create_agents():
     blueTeam_graph.add_node(27)
     greyTeam_good_graph = nx.Graph()
     greyTeam_bad_graph = nx.Graph()
+
+    greyTeam = nx.Graph()
     greyTeam_good_graph.add_nodes_from([29, 30, 32, 34, 36])
     greyTeam_bad_graph.add_nodes_from([28, 31, 33, 35, 37])
+    greyTeam.add_nodes_from([28, 29, 30, 31, 32, 33, 34, 35, 36, 37])
+
+    for node in greyTeam.nodes():
+        if node == 29 or 30 or 32 or 34 or 36:
+            nx.set_node_attributes(greyTeam, {"good"}, name="allegiance")
+        else:
+            nx.set_node_attributes(greyTeam, {"bad"}, name="allegiance")
 
     # SET THE TEAM COLOURS TO EACH NODE
     nx.set_node_attributes(greenTeam_graph, {"green"}, name="team")
@@ -49,6 +58,13 @@ def create_agents():
     # g_list = nx.to_dict_of_lists(game_network)
     #
     # print(g_list)
+
+    for node in greyTeam.nodes():
+        if greyTeam.nodes[node]["allegiance"] == "good":
+            print(greyTeam.nodes[node])
+        elif greyTeam.nodes[node]["allegiance"] == "bad":
+            print(greyTeam.nodes[node])
+
 
     return game_network, greenTeam_graph, redTeam_graph, blueTeam_graph, greyTeam_good_graph, greyTeam_good_graph
 

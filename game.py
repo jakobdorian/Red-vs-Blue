@@ -80,6 +80,7 @@ def interaction_round(green_agents, interacting_agent):
 def blue_interaction_round(green_agents, blue_agent, grey_good, grey_bad):
     energy = 0
     current_interaction = nx.compose(green_agents, blue_agent)
+    grey_team = nx.compose(grey_good, grey_bad)
     # go through each green agent in the network and check their confidence level, if they are certain
     for node in current_interaction.nodes():
         # make sure blue team doesn't use more excessive energy interacting with green team
@@ -87,9 +88,12 @@ def blue_interaction_round(green_agents, blue_agent, grey_good, grey_bad):
             if "confidence" in current_interaction.nodes[node]:
                 if current_interaction.nodes[node]["confidence"] == "certain":
                     energy = energy + 1
+                    # if energy is not exhausted keep interacting with green agents
                     if energy == 10:
                         print("blue team has used up all of its energy!")
                         break
+                    else:
+                        continue
                     # print(current_interaction.nodes[node])
 def update_rules():
     print("")
