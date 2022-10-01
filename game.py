@@ -37,18 +37,23 @@ def interaction_round(green_agents, interacting_agent):
     # SET CONFIDENCE FOR EACH NODE RANDOMLY
     certain = 0.0
     uncertain = 0.0
+    # test1 = round(random.uniform(-1.0, 1.0), 1)
+    # print(test1)
+
     for node in current_interaction.nodes():
         # randomly select a potency message
         # current_redmsg = random.choice(red_msgs)
         # nx.set_node_attributes(agent1, {node: current_redmsg}, name="opinion")
-        random_interval = random.choice([-1, 1])
+        # random_interval = random.choice([-1, 1])
+        random_interval = round(random.uniform(-1.0, 1.0), 1)
+        # print(random_interval)
         current_confidence = get_confidence(green_agents)
-        if random_interval == -1:
+        if random_interval < 0.5:
             nx.set_node_attributes(green_agents, {node: "certain"}, name="confidence")
             certain = certain + 1.0
             current_redmsg = random.choice(red_msgs_high)
             nx.set_node_attributes(green_agents, {node: current_redmsg}, name="opinion")
-        elif random_interval == 1:
+        elif random_interval > 0.5:
             nx.set_node_attributes(green_agents, {node: "uncertain"}, name="confidence")
             uncertain = uncertain + 1.0
             current_redmsg = random.choice(red_msgs_low)
