@@ -53,6 +53,7 @@ def interaction_round(green_agents, interacting_agent):
             certain = certain + 1.0
             current_redmsg = random.choice(red_msgs_high)
             nx.set_node_attributes(green_agents, {node: current_redmsg}, name="opinion")
+            # nx.set_node_attributes(green_agents, {node: "red"}, name="following")
         elif random_interval > 0.5:
             nx.set_node_attributes(green_agents, {node: "uncertain"}, name="confidence")
             uncertain = uncertain + 1.0
@@ -85,20 +86,38 @@ def interaction_round(green_agents, interacting_agent):
 
 def blue_interaction_round(green_agents, blue_agent, grey_team):
     energy = 0
+    lifeline_used = False
     current_interaction = nx.compose(green_agents, blue_agent)
     random_choice = choice(list(grey_team.nodes()))
-    print(random_choice)
+    # print(random_choice)
     # go through each green agent in the network and check their confidence level, if they are certain
     for node in current_interaction.nodes():
         # make sure blue team doesn't use more excessive energy interacting with green team
         if energy < 10:
             if "confidence" in current_interaction.nodes[node]:
-                if current_interaction.nodes[node]["confidence"] == "certain":
+                if current_interaction.nodes[node]["confidence"] == "uncertain":
+                    nx.set_node_attributes(green_agents, {node: "blue"}, name="following")
+                elif current_interaction.nodes[node]["confidence"] == "certain":
                     energy = energy + 1
                     # if energy is not exhausted keep interacting with green agents
                     if energy == 10:
                         print("blue team has used up all of its energy!")
-                        break
+                        # the blue team has a 1/2 chance of introducing a grey agent if they run out of energy
+                        random_chance = random.choice([1, 2])
+                        if random_chance == 1:
+                            print("no grey agent")
+                            break
+                        elif random_chance == 2:
+                            print(grey_team.nodes[random_choice])
+                            # however, there is a chance that the grey agent is a spy
+                            if grey_team.nodes[random_choice]["allegiance"] == "bad":
+                                lifeline_used = True
+                                energy = 0
+                                print("grey agent is a spy!")
+                            elif grey_team.nodes[random_choice]["allegiance"] == "good":
+                                lifeline_used = True
+                                energy = 0
+                                print("grey agent is NOT a spy!")
                     else:
                         continue
                     # print(current_interaction.nodes[node])
@@ -117,8 +136,11 @@ def lose_followers(agents):
     temp_copy = agents.copy()
     for node in temp_copy.nodes():
         # if a message is highly potent, then remove it from the current graph
-        if agents.nodes[node]["opinion"] == "lvl5 potency":
-            agents.remove_node(node)
+        if agents.nodes[node]["opinion"] == "lvl5 potency" or agents.nodes[node]["opinion"] == "lvl4 potency":
+            # agents.remove_node(node)
+            # if a message is too potent, that green agent will unfollow the red team
+            nx.set_node_attributes(agents, {node: "unfollowed"}, name="red-followers")
+
     return agents
 def minimax(current_depth, current_nodeindex, max_depth, target_depth, scores):
     if current_depth == target_depth:

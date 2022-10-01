@@ -39,9 +39,12 @@ def create_agents():
             # print("bad")
             nx.set_node_attributes(greyTeam_graph, {node: "bad"}, name="allegiance")
 
-    # SET THE TEAM COLOURS TO EACH NODE
+    # SET ATTRIBUTES TO EACH NODE
     nx.set_node_attributes(greenTeam_graph, {"green"}, name="team")
     nx.set_node_attributes(greenTeam_graph, {"default opinion"}, name="opinion")
+    # nx.set_node_attributes(greenTeam_graph, {"followed"}, name="red-followers")
+    # nx.set_node_attributes(greenTeam_graph, {"followed"}, name="blue-followers")
+    nx.set_node_attributes(greenTeam_graph, {"red"}, name="following")
     # nx.set_node_attributes(greenTeam_graph, {-0.5, 0.5}, name="certainty")
 
     nx.set_node_attributes(redTeam_graph, {"red"}, name="team")
