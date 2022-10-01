@@ -1,6 +1,7 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 import random
+from random import choice, sample
 import pandas as pd
 import numpy as np
 def start_game(network, green_team, red_team, blue_team, grey_team):
@@ -80,6 +81,8 @@ def interaction_round(green_agents, interacting_agent):
 def blue_interaction_round(green_agents, blue_agent, grey_team):
     energy = 0
     current_interaction = nx.compose(green_agents, blue_agent)
+    random_choice = choice(list(grey_team.nodes()))
+    print(random_choice)
     # go through each green agent in the network and check their confidence level, if they are certain
     for node in current_interaction.nodes():
         # make sure blue team doesn't use more excessive energy interacting with green team
