@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import random
 import pandas as pd
 import numpy as np
-def start_game(network, green_team, red_team, blue_team, grey_good_team, grey_bad_team):
+def start_game(network, green_team, red_team, blue_team, grey_team):
     print("game is starting...")
     # print(network.nodes(data=True))
     # print(green_team)
@@ -16,7 +16,7 @@ def start_game(network, green_team, red_team, blue_team, grey_good_team, grey_ba
     # agents after redgreen interation
     current_green_agents = lose_followers(redgreen_interaction)
 
-    blue_interaction_round(current_green_agents, blue_team, grey_good_team, grey_bad_team)
+    blue_interaction_round(current_green_agents, blue_team, grey_team)
     # print(current_green_agents)
 
     g_dict = nx.to_dict_of_dicts(network)
@@ -77,10 +77,9 @@ def interaction_round(green_agents, interacting_agent):
     #         print(current_interaction.nodes[node])
 
 
-def blue_interaction_round(green_agents, blue_agent, grey_good, grey_bad):
+def blue_interaction_round(green_agents, blue_agent, grey_team):
     energy = 0
     current_interaction = nx.compose(green_agents, blue_agent)
-    grey_team = nx.compose(grey_good, grey_bad)
     # go through each green agent in the network and check their confidence level, if they are certain
     for node in current_interaction.nodes():
         # make sure blue team doesn't use more excessive energy interacting with green team

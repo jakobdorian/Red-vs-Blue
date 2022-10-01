@@ -23,19 +23,21 @@ def create_agents():
     redTeam_graph.add_node(26)
     blueTeam_graph = nx.Graph()
     blueTeam_graph.add_node(27)
-    greyTeam_good_graph = nx.Graph()
-    greyTeam_bad_graph = nx.Graph()
+    # greyTeam_good_graph = nx.Graph()
+    # greyTeam_bad_graph = nx.Graph()
 
-    greyTeam = nx.Graph()
-    greyTeam_good_graph.add_nodes_from([29, 30, 32, 34, 36])
-    greyTeam_bad_graph.add_nodes_from([28, 31, 33, 35, 37])
-    greyTeam.add_nodes_from([28, 29, 30, 31, 32, 33, 34, 35, 36, 37])
+    greyTeam_graph = nx.Graph()
+    # greyTeam_good_graph.add_nodes_from([29, 30, 32, 34, 36])
+    # greyTeam_bad_graph.add_nodes_from([28, 31, 33, 35, 37])
+    greyTeam_graph.add_nodes_from([28, 29, 30, 31, 32, 33, 34, 35, 36, 37])
 
-    for node in greyTeam.nodes():
-        if node == 29 or 30 or 32 or 34 or 36:
-            nx.set_node_attributes(greyTeam, {"good"}, name="allegiance")
-        else:
-            nx.set_node_attributes(greyTeam, {"bad"}, name="allegiance")
+    for node in greyTeam_graph.nodes():
+        if node == 29 or node == 30 or node == 32 or node == 34 or node == 36:
+            # print("good")
+            nx.set_node_attributes(greyTeam_graph, {node: "good"}, name="allegiance")
+        elif node == 28 or node == 31 or node == 33 or node == 35 or node == 37:
+            # print("bad")
+            nx.set_node_attributes(greyTeam_graph, {node: "bad"}, name="allegiance")
 
     # SET THE TEAM COLOURS TO EACH NODE
     nx.set_node_attributes(greenTeam_graph, {"green"}, name="team")
@@ -44,13 +46,12 @@ def create_agents():
 
     nx.set_node_attributes(redTeam_graph, {"red"}, name="team")
     nx.set_node_attributes(blueTeam_graph, {"blue"}, name="team")
-    nx.set_node_attributes(greyTeam_good_graph, {"grey-good"}, name="team")
-    nx.set_node_attributes(greyTeam_bad_graph, {"grey-bad"}, name="team")
+    # nx.set_node_attributes(greyTeam_good_graph, {"grey-good"}, name="team")
+    # nx.set_node_attributes(greyTeam_bad_graph, {"grey-bad"}, name="team")
 
     # COMBINE ALL TEAMS INTO ONE GRAPH
     temp = nx.compose(redTeam_graph, blueTeam_graph)
-    grey_temp = nx.compose(greyTeam_good_graph, greyTeam_bad_graph)
-    temp2 = nx.compose(temp, grey_temp)
+    temp2 = nx.compose(temp, greyTeam_graph)
     game_network = nx.compose(greenTeam_graph, temp2)
 
     # print(game_network.nodes(data=True))
@@ -59,14 +60,14 @@ def create_agents():
     #
     # print(g_list)
 
-    for node in greyTeam.nodes():
-        if greyTeam.nodes[node]["allegiance"] == "good":
-            print(greyTeam.nodes[node])
-        elif greyTeam.nodes[node]["allegiance"] == "bad":
-            print(greyTeam.nodes[node])
+    # for node in greyTeam_graph.nodes():
+    #     if greyTeam_graph.nodes[node]["allegiance"] == "good":
+    #         print(greyTeam_graph.nodes[node])
+    #     elif greyTeam_graph.nodes[node]["allegiance"] == "bad":
+    #         print(greyTeam_graph.nodes[node])
 
 
-    return game_network, greenTeam_graph, redTeam_graph, blueTeam_graph, greyTeam_good_graph, greyTeam_good_graph
+    return game_network, greenTeam_graph, redTeam_graph, blueTeam_graph, greyTeam_graph
 
 
 
