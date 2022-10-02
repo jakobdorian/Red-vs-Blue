@@ -30,6 +30,7 @@ def create_agents():
     # greyTeam_good_graph.add_nodes_from([29, 30, 32, 34, 36])
     # greyTeam_bad_graph.add_nodes_from([28, 31, 33, 35, 37])
     greyTeam_graph.add_nodes_from([28, 29, 30, 31, 32, 33, 34, 35, 36, 37])
+    nx.set_node_attributes(greyTeam_graph, {"grey"}, name="team")
 
     for node in greyTeam_graph.nodes():
         if node == 29 or node == 30 or node == 32 or node == 34 or node == 36:
@@ -49,6 +50,7 @@ def create_agents():
 
     nx.set_node_attributes(redTeam_graph, {"red"}, name="team")
     nx.set_node_attributes(blueTeam_graph, {"blue"}, name="team")
+    # nx.set_node_attributes(greyTeam_graph, {"grey"}, name="team")
     # nx.set_node_attributes(greyTeam_good_graph, {"grey-good"}, name="team")
     # nx.set_node_attributes(greyTeam_bad_graph, {"grey-bad"}, name="team")
 

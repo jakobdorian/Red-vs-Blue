@@ -19,7 +19,7 @@ def start_game(network, green_team, red_team, blue_team, grey_team):
 
     blue_interaction_round(current_green_agents, blue_team, grey_team)
     # print(current_green_agents)
-
+    visualize_game(network)
     g_dict = nx.to_dict_of_dicts(network)
 
 
@@ -135,6 +135,7 @@ def lose_followers(agents):
     # make a copy of graph you can iterate over
     temp_copy = agents.copy()
     for node in temp_copy.nodes():
+        # print(temp_copy.nodes[node])
         # if a message is highly potent, then remove it from the current graph
         if agents.nodes[node]["opinion"] == "lvl5 potency" or agents.nodes[node]["opinion"] == "lvl4 potency":
             # agents.remove_node(node)
@@ -146,9 +147,21 @@ def minimax(current_depth, current_nodeindex, max_depth, target_depth, scores):
     if current_depth == target_depth:
         return scores[current_nodeindex]
 
-
-    # print(current_interaction.nodes(data=True))
-
+def visualize_game(network):
+    color_nodes = []
+    for node in network.nodes():
+        # print(network.nodes[node]["team"])
+        if network.nodes[node]["team"] == {"green"}:
+            color_nodes.append('green')
+        elif network.nodes[node]["team"] == {"red"}:
+            color_nodes.append('red')
+        elif network.nodes[node]["team"] == {"blue"}:
+            color_nodes.append('blue')
+        elif network.nodes[node]["team"] == {"grey"}:
+            color_nodes.append('grey')
+    # print(color_nodes)
+    nx.draw(network, node_color=color_nodes, with_labels=True)
+    plt.show()
 
 
 
