@@ -45,7 +45,7 @@ def create_agents():
     nx.set_node_attributes(greenTeam_graph, {"default opinion"}, name="opinion")
     # nx.set_node_attributes(greenTeam_graph, {"followed"}, name="red-followers")
     # nx.set_node_attributes(greenTeam_graph, {"followed"}, name="blue-followers")
-    nx.set_node_attributes(greenTeam_graph, {"red"}, name="following")
+    nx.set_node_attributes(greenTeam_graph, "red", name="following")
     # nx.set_node_attributes(greenTeam_graph, {-0.5, 0.5}, name="certainty")
 
     nx.set_node_attributes(redTeam_graph, {"red"}, name="team")

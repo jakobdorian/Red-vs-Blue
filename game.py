@@ -17,9 +17,10 @@ def start_game(network, green_team, red_team, blue_team, grey_team):
     # agents after redgreen interation
     current_green_agents = lose_followers(redgreen_interaction)
 
-    blue_interaction_round(current_green_agents, blue_team, grey_team)
-    # print(current_green_agents)
-    visualize_game(network)
+    current_green_agents = blue_interaction_round(current_green_agents, blue_team, grey_team)
+
+    game_result(current_green_agents)
+    # visualize_game(network)
     g_dict = nx.to_dict_of_dicts(network)
 
 
@@ -47,7 +48,7 @@ def interaction_round(green_agents, interacting_agent):
         # random_interval = random.choice([-1, 1])
         random_interval = round(random.uniform(-1.0, 1.0), 1)
         # print(random_interval)
-        current_confidence = get_confidence(green_agents)
+        # current_confidence = get_confidence(green_agents)
         if random_interval < 0.5:
             nx.set_node_attributes(green_agents, {node: "certain"}, name="confidence")
             certain = certain + 1.0
@@ -120,17 +121,8 @@ def blue_interaction_round(green_agents, blue_agent, grey_team):
                                 print("grey agent is NOT a spy!")
                     else:
                         continue
+    return green_agents
                     # print(current_interaction.nodes[node])
-def update_rules():
-    print("")
-
-
-def get_confidence(agents):
-    val = [np.random.choice(agents, size=len(agents), replace=True).mean() for i in range(1000)]
-    val2 = np.percentile(val, [100 * (1 - 0.95) / 2, 100 * (1 - (1 - 0.95) / 2)])
-    # print(val2)
-    return val2
-
 def lose_followers(agents):
     # make a copy of graph you can iterate over
     temp_copy = agents.copy()
@@ -143,10 +135,6 @@ def lose_followers(agents):
             nx.set_node_attributes(agents, {node: "unfollowed"}, name="red-followers")
 
     return agents
-def minimax(current_depth, current_nodeindex, max_depth, target_depth, scores):
-    if current_depth == target_depth:
-        return scores[current_nodeindex]
-
 def visualize_game(network):
     color_nodes = []
     for node in network.nodes():
@@ -163,8 +151,21 @@ def visualize_game(network):
     nx.draw(network, node_color=color_nodes, with_labels=True)
     plt.show()
 
-
-
-
+def game_result(green_team):
+    red = 0
+    blue = 0
+    for node in green_team.nodes():
+        # print(green_team.nodes[node]["following"])
+        if "following" in green_team.nodes[node]:
+            if green_team.nodes[node]["following"] == "red":
+                red = red + 1
+            elif green_team.nodes[node]["following"] == "blue":
+                blue = blue + 1
+    if red > blue:
+        print("red team wins!")
+    elif blue > red:
+        print("blue team wins!")
+    elif red == blue:
+        print("it's a tie!")
 
 
