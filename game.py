@@ -39,11 +39,16 @@ def red_interaction_round(green_team, red_team):
             green_interaction(green_team, node, temp[x])
 
 
-# should return new opinion and uncertainty
-def green_interaction(green_team, agent1, agent2):
+# should return new opinion and uncertainty of agent1
+def green_interaction(green_team, node1, node2):
     # print(agent1)
     # print(agent2)
-    print("testing green interaction")
+    # print("testing green interaction")
+
+    if green_team.nodes[node1]["uncertainty"] > 0.5 and green_team.nodes[node1]["opinion"] == 1:
+        print("agent wants to vote!")
+    elif green_team.nodes[node1]["uncertainty"] < 0.5 and green_team.nodes[node1]["opinion"] == 0:
+        print("agent does NOT want to vote...")
 
 def interaction_round(green_agents, interacting_agent):
     # combine red and green nodes into one graph
