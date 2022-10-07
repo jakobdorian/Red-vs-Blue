@@ -2,6 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
+import random
 def create_agents():
     print("creating agents...")
 
@@ -17,8 +18,7 @@ def create_agents():
     # skip first line
 
     # CREATE GRAPHS FOR EACH TEAM
-    greenTeam_graph = nx.parse_edgelist(data, delimiter=',', create_using=Graphtype, nodetype=int,
-                                        data=(('weight', float),))
+    greenTeam_graph = nx.parse_edgelist(data, delimiter=',', create_using=Graphtype, nodetype=int, data=(('weight', float),))
     redTeam_graph = nx.Graph()
     redTeam_graph.add_node(26)
     blueTeam_graph = nx.Graph()
@@ -39,17 +39,27 @@ def create_agents():
         elif node == 28 or node == 31 or node == 33 or node == 35 or node == 37:
             # print("bad")
             nx.set_node_attributes(greyTeam_graph, {node: "bad"}, name="allegiance")
+    # set the random opinions and uncertainties of green agents
+    for node in greenTeam_graph.nodes():
+        random_opinion = random.choice([0, 1])
+        random_interval = round(random.uniform(-1.0, 1.0), 1)
+        nx.set_node_attributes(greenTeam_graph, {node: random_opinion}, name="opinion")
+        nx.set_node_attributes(greenTeam_graph, {node: random_interval}, name="uncertainty")
+
 
     # SET ATTRIBUTES TO EACH NODE
     nx.set_node_attributes(greenTeam_graph, {"green"}, name="team")
-    nx.set_node_attributes(greenTeam_graph, {"default opinion"}, name="opinion")
+    # nx.set_node_attributes(greenTeam_graph, {"default opinion"}, name="opinion")
     # nx.set_node_attributes(greenTeam_graph, {"followed"}, name="red-followers")
     # nx.set_node_attributes(greenTeam_graph, {"followed"}, name="blue-followers")
     nx.set_node_attributes(greenTeam_graph, "red", name="following")
     # nx.set_node_attributes(greenTeam_graph, {-0.5, 0.5}, name="certainty")
 
-    nx.set_node_attributes(redTeam_graph, {"red"}, name="team")
-    nx.set_node_attributes(blueTeam_graph, {"blue"}, name="team")
+    nx.set_node_attributes(redTeam_graph, "red", name="team")
+
+    high_uncertainty = round(random.uniform(0.5, 1.0), 1)
+    nx.set_node_attributes(redTeam_graph, high_uncertainty, name="uncertainty")
+    nx.set_node_attributes(blueTeam_graph, "blue", name="team")
     # nx.set_node_attributes(greyTeam_graph, {"grey"}, name="team")
     # nx.set_node_attributes(greyTeam_good_graph, {"grey-good"}, name="team")
     # nx.set_node_attributes(greyTeam_bad_graph, {"grey-bad"}, name="team")

@@ -12,17 +12,38 @@ def start_game(network, green_team, red_team, blue_team, grey_team):
     # print(blue_team)
     # print(grey_good_team)
     # print(grey_bad_team)
-    redgreen_interaction = interaction_round(green_team, red_team)
+    # redgreen_interaction = interaction_round(green_team, red_team)
+
+    red_interaction_round(green_team, red_team)
 
     # agents after redgreen interation
-    current_green_agents = lose_followers(redgreen_interaction)
-
-    current_green_agents = blue_interaction_round(current_green_agents, blue_team, grey_team)
-
-    game_result(current_green_agents)
+    # current_green_agents = lose_followers(redgreen_interaction)
+    # current_green_agents = blue_interaction_round(current_green_agents, blue_team, grey_team)
+    # game_result(current_green_agents)
     # visualize_game(network)
-    g_dict = nx.to_dict_of_dicts(network)
+    # g_dict = nx.to_dict_of_dicts(network)
 
+
+def red_interaction_round(green_team, red_team):
+    current_interaction = nx.compose(green_team, red_team)
+    red_msgs = ["lvl1 potency", "lvl2 potency", "lvl3 potency", "lvl4 potency", "lvl5 potency"]
+
+    agent_neighbours = []
+    # print(green_team.edges)
+    for node in green_team.nodes():
+        # print(list(green_team.neighbors(node)))
+        temp = list(green_team.neighbors(node))
+        for x in range(len(temp)):
+            # print(node)
+            # print(temp[x])
+            green_interaction(green_team, node, temp[x])
+
+
+# should return new opinion and uncertainty
+def green_interaction(green_team, agent1, agent2):
+    # print(agent1)
+    # print(agent2)
+    print("testing green interaction")
 
 def interaction_round(green_agents, interacting_agent):
     # combine red and green nodes into one graph
@@ -37,7 +58,6 @@ def interaction_round(green_agents, interacting_agent):
 
     # SET CONFIDENCE FOR EACH NODE RANDOMLY
     certain = 0.0
-    uncertain = 0.0
     # test1 = round(random.uniform(-1.0, 1.0), 1)
     # print(test1)
 
