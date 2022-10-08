@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 import random
-def create_agents():
+def create_teams():
     print("creating agents...")
 
     # df = pd.read_csv('network-2.csv')
@@ -49,12 +49,9 @@ def create_agents():
 
 
     # SET ATTRIBUTES TO EACH NODE
-    nx.set_node_attributes(greenTeam_graph, {"green"}, name="team")
-    # nx.set_node_attributes(greenTeam_graph, {"default opinion"}, name="opinion")
-    # nx.set_node_attributes(greenTeam_graph, {"followed"}, name="red-followers")
-    # nx.set_node_attributes(greenTeam_graph, {"followed"}, name="blue-followers")
-    nx.set_node_attributes(greenTeam_graph, "red", name="following")
-    # nx.set_node_attributes(greenTeam_graph, {-0.5, 0.5}, name="certainty")
+    nx.set_node_attributes(greenTeam_graph, "green", name="team")
+
+    nx.set_node_attributes(greenTeam_graph, "none", name="following")
 
     nx.set_node_attributes(redTeam_graph, "red", name="team")
 
@@ -70,25 +67,8 @@ def create_agents():
     temp2 = nx.compose(temp, greyTeam_graph)
     game_network = nx.compose(greenTeam_graph, temp2)
 
-    # print(game_network.nodes(data=True))
-
-    # g_list = nx.to_dict_of_lists(game_network)
-    #
-    # print(g_list)
-
-    # for node in greyTeam_graph.nodes():
-    #     if greyTeam_graph.nodes[node]["allegiance"] == "good":
-    #         print(greyTeam_graph.nodes[node])
-    #     elif greyTeam_graph.nodes[node]["allegiance"] == "bad":
-    #         print(greyTeam_graph.nodes[node])
-
-
-    return game_network, greenTeam_graph, redTeam_graph, blueTeam_graph, greyTeam_graph
-
-
-
-
-
     # nx.draw(greenTeam_graph)
     # nx.draw(game_network)
     # plt.show()
+
+    return game_network, greenTeam_graph, redTeam_graph, blueTeam_graph, greyTeam_graph

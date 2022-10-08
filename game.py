@@ -14,7 +14,19 @@ def start_game(network, green_team, red_team, blue_team, grey_team):
     # print(grey_bad_team)
     # redgreen_interaction = interaction_round(green_team, red_team)
 
-    red_interaction_round(green_team, red_team)
+    blue_energy = 0
+
+    green = green_interaction_round(green_team)
+    green, red_skip = red_interaction_round(green, red_team)
+
+    if red_skip:
+        print("red skip")
+
+    blue(green, blue_team, grey_team, blue_energy)
+
+    # green, game_state = blue_interaction_round(green, blue_team, grey_team)
+
+
 
     # agents after redgreen interation
     # current_green_agents = lose_followers(redgreen_interaction)
@@ -23,11 +35,7 @@ def start_game(network, green_team, red_team, blue_team, grey_team):
     # visualize_game(network)
     # g_dict = nx.to_dict_of_dicts(network)
 
-
-def red_interaction_round(green_team, red_team):
-    current_interaction = nx.compose(green_team, red_team)
-    red_msgs = ["lvl1 potency", "lvl2 potency", "lvl3 potency", "lvl4 potency", "lvl5 potency"]
-    ignore_red = False
+def green_interaction_round(green_team):
     for node in green_team.nodes():
         temp = list(green_team.neighbors(node))
         for x in range(len(temp)):
@@ -41,8 +49,58 @@ def red_interaction_round(green_team, red_team):
             # set the updated values to agent2
             nx.set_node_attributes(green_team, {temp[x]: agent2_updated_opinion}, name="opinion")
             nx.set_node_attributes(green_team, {temp[x]: agent2_updated_uncertainty}, name="uncertainty")
-    # check_current_state(green_team)
+    return green_team
 
+def red_message_selection(red_msgs):
+    print("1. lvl1 potency msg")
+    print("2. lvl2 potency msg")
+    print("3. lvl3 potency msg")
+    print("4. lvl4 potency msg")
+    print("5. lvl5 potency msg")
+    player_selection = input('Pick a message to send to the green agent: ')
+
+    if player_selection == "1":
+        player_message = red_msgs[0]
+    elif player_selection == "2":
+        player_message = red_msgs[1]
+    elif player_selection == "3":
+        player_message = red_msgs[2]
+    elif player_selection == "4":
+        player_message = red_msgs[3]
+    elif player_selection == "5":
+        player_message = red_msgs[4]
+    else:
+        print("invalid option!")
+        print("please pick a number between 1-5: ")
+    return player_message
+def red_interaction_round(green_team, red_team):
+    current_interaction = nx.compose(green_team, red_team)
+    red_msgs = ["lvl1 potency", "lvl2 potency", "lvl3 potency", "lvl4 potency", "lvl5 potency"]
+    red_skip = False
+    for node in green_team.nodes():
+        # player_message = red_message_selection(red_msgs)
+
+        # randomly pick a potent message - TESTING
+        current_redmsg = random.choice(red_msgs)
+
+        # message is not potent enough to have an affect
+        if current_redmsg == "lvl1 potency":
+            break
+        elif current_redmsg == "lvl2 potency":
+            break
+        elif current_redmsg == "lvl3 potency" and green_team.nodes[node]["opinion"] == 1:
+            chance = random.choice([0, 1])
+            if chance == 1:
+                nx.set_node_attributes(green_team, {node: "red"}, name="following")
+        # highly potent message and agent wants to vote
+        elif current_redmsg == "lvl4 potency" and green_team.nodes[node]["opinion"] == 1:
+            nx.set_node_attributes(green_team, {node: "red"}, name="following")
+            red_skip = True
+        elif current_redmsg == "lvl5 potency" and green_team.nodes[node]["opinion"] == 1:
+            nx.set_node_attributes(green_team, {node: "red"}, name="following")
+            red_skip = True
+
+    return green_team, red_skip
 
 # should return new opinion and uncertainty of agent1
 def green_interaction(green_team, node1, node2):
@@ -95,65 +153,19 @@ def update_rules(agent1_starting_opinion, agent1_starting_uncertainty, agent2_st
     # if the agents do not meet any of the conditions, return the original values
     else:
         return agent1_starting_opinion, agent1_starting_uncertainty, agent2_starting_opinion, agent2_starting_uncertainty
-def interaction_round(green_agents, interacting_agent):
-    # combine red and green nodes into one graph
-    current_interaction = nx.compose(green_agents, interacting_agent)
-    # list of levels of potency messages
-    # red_msgs = ["lvl1 potency", "lvl2 potency", "lvl3 potency", "lvl4 potency", "lvl5 potency"]
-    red_msgs_low = ["lvl1 potency", "lvl2 potency", "lvl3 potency"]
-    red_msgs_high = ["lvl3 potency", "lvl4 potency", "lvl5 potency"]
-    # print(current_interaction.nodes(data=True))
-    # nx.draw(current_interaction)
-    # plt.show()
 
-    # SET CONFIDENCE FOR EACH NODE RANDOMLY
-    certain = 0.0
-    # test1 = round(random.uniform(-1.0, 1.0), 1)
-    # print(test1)
-
-    for node in current_interaction.nodes():
-        # randomly select a potency message
-        # current_redmsg = random.choice(red_msgs)
-        # nx.set_node_attributes(agent1, {node: current_redmsg}, name="opinion")
-        # random_interval = random.choice([-1, 1])
-        random_interval = round(random.uniform(-1.0, 1.0), 1)
-        # print(random_interval)
-        # current_confidence = get_confidence(green_agents)
-        if random_interval < 0.5:
-            nx.set_node_attributes(green_agents, {node: "certain"}, name="confidence")
-            certain = certain + 1.0
-            current_redmsg = random.choice(red_msgs_high)
-            nx.set_node_attributes(green_agents, {node: current_redmsg}, name="opinion")
-            # nx.set_node_attributes(green_agents, {node: "red"}, name="following")
-        elif random_interval > 0.5:
-            nx.set_node_attributes(green_agents, {node: "uncertain"}, name="confidence")
-            uncertain = uncertain + 1.0
-            current_redmsg = random.choice(red_msgs_low)
-            nx.set_node_attributes(green_agents, {node: current_redmsg}, name="opinion")
-    if certain > uncertain:
-        temp = uncertain / certain
-        temp = temp * 100
-        temp2 = 100 - temp
-        print(str(round(temp)) + "% of", "green team is certain")
-        print(str(round(temp2)) + "% of", "green team is uncertain")
-        # print(temp2)
-    else:
-        temp = certain / uncertain
-        temp = temp * 100
-        temp2 = 100 - temp
-        print(str(round(temp)) + "% of", "green team is uncertain")
-        print(str(round(temp2)) + "% of", "green team is certain")
-
-    return green_agents
-
-    # print(current_interaction.nodes.data("confidence"))
-    # print(green_agent.nodes(data=True))
-    # for node in current_interaction.nodes():
-    #     if current_interaction.nodes[node]["confidence"] == "certain":
-    #         print(current_interaction.nodes[node])
-    #     elif current_interaction.nodes[node]["confidence"] == "uncertain":
-    #         print(current_interaction.nodes[node])
-
+def blue(green_team, blue_team, grey_team, energy):
+    # 80% of the nodes in green team
+    energy_max = 20
+    # if blue team uses all of its energy, the game ends
+    if energy == energy_max:
+        game_result(green_team)
+    for node in green_team.nodes():
+        if green_team.nodes[node]["uncertainty"] < 0.5:
+            print("current agent is certain")
+        elif green_team.nodes[node]["uncertainty"] > 0.5:
+            print("current agent is uncertain")
+            energy = energy + 1
 
 def blue_interaction_round(green_agents, blue_agent, grey_team):
     energy = 0
@@ -251,5 +263,6 @@ def game_result(green_team):
         print("blue team wins!")
     elif red == blue:
         print("it's a tie!")
+
 
 
