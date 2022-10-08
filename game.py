@@ -157,7 +157,9 @@ def update_rules(agent1_starting_opinion, agent1_starting_uncertainty, agent2_st
 def blue(green_team, blue_team, grey_team, energy):
     # 80% of the nodes in green team
     energy_max = 20
+    blue_msgs = ["lvl1 potency", "lvl2 potency", "lvl3 potency", "lvl4 potency", "lvl5 potency"]
     # if blue team uses all of its energy, the game ends
+
     if energy == energy_max:
         game_result(green_team)
     for node in green_team.nodes():
