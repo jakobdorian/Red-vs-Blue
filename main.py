@@ -1,4 +1,4 @@
-from agents import create_agents
+from teams import create_agents
 from game import start_game
 
 print("main is running")

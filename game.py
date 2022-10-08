@@ -27,7 +27,7 @@ def start_game(network, green_team, red_team, blue_team, grey_team):
 def red_interaction_round(green_team, red_team):
     current_interaction = nx.compose(green_team, red_team)
     red_msgs = ["lvl1 potency", "lvl2 potency", "lvl3 potency", "lvl4 potency", "lvl5 potency"]
-
+    ignore_red = False
     agent_neighbours = []
     # print(green_team.edges)
     for node in green_team.nodes():
@@ -45,10 +45,23 @@ def green_interaction(green_team, node1, node2):
     # print(agent2)
     # print("testing green interaction")
 
-    if green_team.nodes[node1]["uncertainty"] > 0.5 and green_team.nodes[node1]["opinion"] == 1:
-        print("agent wants to vote!")
-    elif green_team.nodes[node1]["uncertainty"] < 0.5 and green_team.nodes[node1]["opinion"] == 0:
-        print("agent does NOT want to vote...")
+    if green_team.nodes[node1]["uncertainty"] > 0.5 and green_team.nodes[node1]["opinion"] == 1 and green_team.nodes[node2]["uncertainty"] > 0.5 and green_team.nodes[node2]["opinion"] == 1:
+        print("agent1 and agent2 want to vote!")
+        print("update values")
+    elif green_team.nodes[node1]["uncertainty"] < 0.5 and green_team.nodes[node1]["opinion"] == 0 and green_team.nodes[node2]["uncertainty"] < 0.5 and green_team.nodes[node2]["opinion"] == 0:
+        print("agent1 and agent2 do NOT want to vote...")
+        print("update values")
+    else:
+        print("no change")
+
+    # if green_team.nodes[node2]["uncertainty"] > 0.5 and green_team.nodes[node2]["opinion"] == 1:
+    #     print("agent2 wants to vote!")
+    # elif green_team.nodes[node2]["uncertainty"] < 0.5 and green_team.nodes[node2]["opinion"] == 0:
+    #     print("agent2 does NOT want to vote...")
+    # else:
+    #     print("agent2 - no change")
+
+
 
 def interaction_round(green_agents, interacting_agent):
     # combine red and green nodes into one graph
