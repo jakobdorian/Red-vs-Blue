@@ -41,6 +41,7 @@ def red_interaction_round(green_team, red_team):
             # set the updated values to agent2
             nx.set_node_attributes(green_team, {temp[x]: agent2_updated_opinion}, name="opinion")
             nx.set_node_attributes(green_team, {temp[x]: agent2_updated_uncertainty}, name="uncertainty")
+    # check_current_state(green_team)
 
 
 # should return new opinion and uncertainty of agent1
@@ -220,6 +221,20 @@ def visualize_game(network):
     nx.draw(network, node_color=color_nodes, with_labels=True)
     plt.show()
 
+# returns the current state of the game
+def check_current_state(green):
+    red = 0
+    blue = 0
+    for node in green.nodes():
+        # print(green_team.nodes[node]["following"])
+        if "following" in green.nodes[node]:
+            if green.nodes[node]["following"] == "red":
+                red = red + 1
+            elif green.nodes[node]["following"] == "blue":
+                blue = blue + 1
+    print("current red followers: ", red)
+    print("current blue followers: ", blue)
+# returns the result of the game once the game has ended
 def game_result(green_team):
     red = 0
     blue = 0
