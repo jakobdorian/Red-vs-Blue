@@ -28,41 +28,72 @@ def red_interaction_round(green_team, red_team):
     current_interaction = nx.compose(green_team, red_team)
     red_msgs = ["lvl1 potency", "lvl2 potency", "lvl3 potency", "lvl4 potency", "lvl5 potency"]
     ignore_red = False
-    agent_neighbours = []
-    # print(green_team.edges)
     for node in green_team.nodes():
-        # print(list(green_team.neighbors(node)))
         temp = list(green_team.neighbors(node))
         for x in range(len(temp)):
-            # print(node)
-            # print(temp[x])
-            green_interaction(green_team, node, temp[x])
+            # green_interaction(green_team, node, temp[x])
+            agent1_updated_opinion, agent1_updated_uncertainty, agent2_updated_opinion, agent2_updated_uncertainty = green_interaction(green_team, node, temp[x])
+            # print(agent1_updated_opinion, agent1_updated_uncertainty, agent2_updated_opinion, agent2_updated_uncertainty)
+
+            # set the updated values to agent1
+            nx.set_node_attributes(green_team, {node: agent1_updated_opinion}, name="opinion")
+            nx.set_node_attributes(green_team, {node: agent1_updated_uncertainty}, name="uncertainty")
+            # set the updated values to agent2
+            nx.set_node_attributes(green_team, {temp[x]: agent2_updated_opinion}, name="opinion")
+            nx.set_node_attributes(green_team, {temp[x]: agent2_updated_uncertainty}, name="uncertainty")
 
 
 # should return new opinion and uncertainty of agent1
 def green_interaction(green_team, node1, node2):
-    # print(agent1)
-    # print(agent2)
-    # print("testing green interaction")
+    agent1_starting_opinion = green_team.nodes[node1]["opinion"]
+    agent1_starting_uncertainty = green_team.nodes[node1]["uncertainty"]
 
-    if green_team.nodes[node1]["uncertainty"] > 0.5 and green_team.nodes[node1]["opinion"] == 1 and green_team.nodes[node2]["uncertainty"] > 0.5 and green_team.nodes[node2]["opinion"] == 1:
-        print("agent1 and agent2 want to vote!")
-        print("update values")
-    elif green_team.nodes[node1]["uncertainty"] < 0.5 and green_team.nodes[node1]["opinion"] == 0 and green_team.nodes[node2]["uncertainty"] < 0.5 and green_team.nodes[node2]["opinion"] == 0:
-        print("agent1 and agent2 do NOT want to vote...")
-        print("update values")
+    agent2_starting_opinion = green_team.nodes[node2]["opinion"]
+    agent2_starting_uncertainty = green_team.nodes[node2]["uncertainty"]
+
+    agent1_updated_opinion, agent1_updated_uncertainty, agent2_updated_opinion, agent2_updated_uncertainty = update_rules(agent1_starting_opinion, agent1_starting_uncertainty, agent2_starting_opinion, agent2_starting_uncertainty)
+
+    return agent1_updated_opinion, agent1_updated_uncertainty, agent2_updated_opinion, agent2_updated_uncertainty
+
+def update_rules(agent1_starting_opinion, agent1_starting_uncertainty, agent2_starting_opinion, agent2_starting_uncertainty):
+    # both agents want to vote and have a high uncertainty
+    if agent1_starting_opinion == 1 and agent1_starting_uncertainty > 0.5 and agent2_starting_opinion == 1 and agent2_starting_uncertainty > 0.5:
+        agent1_updated_opinion = agent1_starting_opinion
+        agent1_updated_uncertainty = agent1_starting_uncertainty - 0.1
+
+        agent2_updated_opinion = agent2_starting_opinion
+        agent2_updated_uncertainty = agent2_starting_uncertainty - 0.1
+        return agent1_updated_opinion, agent1_updated_uncertainty, agent2_updated_opinion, agent2_updated_uncertainty
+    # both agents don't want to vote and have a low uncertainty
+    elif agent1_starting_opinion == 0 and agent1_starting_uncertainty < 0.5 and agent2_starting_opinion == 0 and agent2_starting_uncertainty < 0.5:
+        agent1_updated_opinion = agent1_starting_opinion
+        agent1_updated_uncertainty = agent1_starting_uncertainty + 0.1
+
+        agent2_updated_opinion = agent2_starting_opinion
+        agent2_updated_uncertainty = agent2_starting_uncertainty + 0.1
+        return agent1_updated_opinion, agent1_updated_uncertainty, agent2_updated_opinion, agent2_updated_uncertainty
+    # agent 1 wants to vote but agent 2 does not, if the agent1's uncertainty is greater than agent2's uncertainty,
+    # then update the uncertainty
+    # else, just update the opinion
+    elif agent1_starting_opinion == 1 and agent1_starting_uncertainty > 0.5 and agent2_starting_opinion == 0 and agent2_starting_uncertainty > 0.5:
+        if agent1_starting_uncertainty > agent2_starting_uncertainty:
+            agent1_updated_opinion = agent1_starting_opinion
+            agent1_updated_uncertainty = agent1_starting_uncertainty + 0.1
+
+            agent2_updated_opinion = agent1_updated_opinion
+            agent2_updated_uncertainty = agent2_starting_uncertainty + 0.1
+            return agent1_updated_opinion, agent1_updated_uncertainty, agent2_updated_opinion, agent2_updated_uncertainty
+
+        else:
+            agent1_updated_opinion = agent1_starting_opinion
+            agent1_updated_uncertainty = agent1_starting_uncertainty
+
+            agent2_updated_opinion = agent1_updated_opinion
+            agent2_updated_uncertainty = agent2_starting_uncertainty
+            return agent1_updated_opinion, agent1_updated_uncertainty, agent2_updated_opinion, agent2_updated_uncertainty
+    # if the agents do not meet any of the conditions, return the original values
     else:
-        print("no change")
-
-    # if green_team.nodes[node2]["uncertainty"] > 0.5 and green_team.nodes[node2]["opinion"] == 1:
-    #     print("agent2 wants to vote!")
-    # elif green_team.nodes[node2]["uncertainty"] < 0.5 and green_team.nodes[node2]["opinion"] == 0:
-    #     print("agent2 does NOT want to vote...")
-    # else:
-    #     print("agent2 - no change")
-
-
-
+        return agent1_starting_opinion, agent1_starting_uncertainty, agent2_starting_opinion, agent2_starting_uncertainty
 def interaction_round(green_agents, interacting_agent):
     # combine red and green nodes into one graph
     current_interaction = nx.compose(green_agents, interacting_agent)
