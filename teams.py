@@ -40,13 +40,22 @@ def create_teams():
             # print("bad")
             nx.set_node_attributes(greyTeam_graph, {node: "bad"}, name="allegiance")
     # set the random opinions and uncertainties of green agents
+    # player_interval = float(input('select a starting interval for the green team: '))
+    # if player_interval > -1.0 and player_interval < 1.0:
+    #     for node in greenTeam_graph.nodes():
+    #         # 0 indicates the agent does not want to vote
+    #         random_opinion = random.choice([0, 1])
+    #         random_interval = round(random.uniform(-1.0, 1.0), 1)
+    #         nx.set_node_attributes(greenTeam_graph, {node: random_opinion}, name="opinion")
+    #         # nx.set_node_attributes(greenTeam_graph, {node: random_interval}, name="uncertainty")
+    #         nx.set_node_attributes(greenTeam_graph, {node: player_interval}, name="uncertainty")
+
     for node in greenTeam_graph.nodes():
         # 0 indicates the agent does not want to vote
         random_opinion = random.choice([0, 1])
         random_interval = round(random.uniform(-1.0, 1.0), 1)
         nx.set_node_attributes(greenTeam_graph, {node: random_opinion}, name="opinion")
         nx.set_node_attributes(greenTeam_graph, {node: random_interval}, name="uncertainty")
-
 
     # SET ATTRIBUTES TO EACH NODE
     nx.set_node_attributes(greenTeam_graph, "green", name="team")

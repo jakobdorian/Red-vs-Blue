@@ -13,8 +13,9 @@ def start_game(network, green_team, red_team, blue_team, grey_team):
     # print(grey_good_team)
     # print(grey_bad_team)
     # redgreen_interaction = interaction_round(green_team, red_team)
-
+    lifeline = False
     blue_energy = 0
+    blue_max = 20
 
     green = green_interaction_round(green_team)
     green, red_skip = red_interaction_round(green, red_team)
@@ -22,7 +23,23 @@ def start_game(network, green_team, red_team, blue_team, grey_team):
     if red_skip:
         print("red skip")
 
-    blue(green, blue_team, grey_team, blue_energy)
+    endofround_green, energy = blue(green, blue_team, grey_team, blue_energy, lifeline)
+    print(energy)
+    game_result(endofround_green)
+
+    # i = 1
+    # while i < blue_max:
+    #     i = i + 1
+    #
+    #     green = green_interaction_round(green_team)
+    #     green, red_skip = red_interaction_round(green, red_team)
+    #
+    #     if red_skip:
+    #         print("red skip")
+    #
+    #     endof_round_green = blue(green, blue_team, grey_team, blue_energy)
+
+
 
     # green, game_state = blue_interaction_round(green, blue_team, grey_team)
 
@@ -154,20 +171,50 @@ def update_rules(agent1_starting_opinion, agent1_starting_uncertainty, agent2_st
     else:
         return agent1_starting_opinion, agent1_starting_uncertainty, agent2_starting_opinion, agent2_starting_uncertainty
 
-def blue(green_team, blue_team, grey_team, energy):
+def blue(green_team, blue_team, grey_team, energy, lifeline):
     # 80% of the nodes in green team
     energy_max = 20
     blue_msgs = ["lvl1 potency", "lvl2 potency", "lvl3 potency", "lvl4 potency", "lvl5 potency"]
     # if blue team uses all of its energy, the game ends
+    random_msg = random.choice(blue_msgs)
 
     if energy == energy_max:
-        game_result(green_team)
+        print("implement special grey round")
+        random_choice = choice(list(grey_team.nodes()))
+        if grey_team.nodes[random_choice]["allegiance"] == "bad":
+            lifeline = True
+            # energy = 0
+            print("grey agent is spy")
+            # implement a special grey-red interaction round
+        elif grey_team.nodes[random_choice]["allegiance"] == "good":
+            lifeline = True
+            energy = 0
+            print("blue team has another round")
+            #implement a special grey-good interaction round
+
+
     for node in green_team.nodes():
-        if green_team.nodes[node]["uncertainty"] < 0.5:
-            print("current agent is certain")
-        elif green_team.nodes[node]["uncertainty"] > 0.5:
-            print("current agent is uncertain")
-            energy = energy + 1
+        # randomly pick a potent message - TESTING
+        random_msg = random.choice(blue_msgs)
+
+        # message is not potent enough to have an affect
+        if random_msg == "lvl1 potency":
+            energy = energy - 2
+        elif random_msg == "lvl2 potency":
+            energy = energy - 1
+        elif random_msg == "lvl3 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] > 0.5:
+            chance = random.choice([0, 1])
+            if chance == 1:
+                nx.set_node_attributes(green_team, {node: "blue"}, name="following")
+        # highly potent message and agent wants to vote
+        elif random_msg == "lvl4 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] > 0.5:
+            nx.set_node_attributes(green_team, {node: "blue"}, name="following")
+            energy = energy + 2
+        elif random_msg == "lvl5 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] > 0.5:
+            nx.set_node_attributes(green_team, {node: "blue"}, name="following")
+            energy = energy + 3
+
+    return green_team, energy
 
 def blue_interaction_round(green_agents, blue_agent, grey_team):
     energy = 0
@@ -261,10 +308,16 @@ def game_result(green_team):
                 blue = blue + 1
     if red > blue:
         print("red team wins!")
+        print("red followers: ", red)
+        print("blue followers: ", blue)
     elif blue > red:
         print("blue team wins!")
+        print("red followers: ", red)
+        print("blue followers: ", blue)
     elif red == blue:
         print("it's a tie!")
+        print("red followers: ", red)
+        print("blue followers: ", blue)
 
 
 
