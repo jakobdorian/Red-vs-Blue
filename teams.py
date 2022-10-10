@@ -4,7 +4,7 @@ import networkx as nx
 import numpy as np
 import random
 def create_teams():
-    print("creating agents...")
+    print("generating teams...")
 
     # df = pd.read_csv('network-2.csv')
     Graphtype = nx.Graph()

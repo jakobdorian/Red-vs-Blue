@@ -2,56 +2,60 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import random
 from random import choice, sample
+from helper import save_green, get_green, save_energy, get_energy, clear_energy
 import pandas as pd
 import numpy as np
+import time
 def start_game(network, green_team, red_team, blue_team, grey_team):
     print("game is starting...")
-    # print(network.nodes(data=True))
-    # print(green_team)
-    # print(red_team)
-    # print(blue_team)
-    # print(grey_good_team)
-    # print(grey_bad_team)
-    # redgreen_interaction = interaction_round(green_team, red_team)
     lifeline = False
-    blue_energy = 0
+    clear_energy()
     blue_max = 20
+    energy = 0
+    save_green(green_team)
+    rounds = 0
 
-    green = green_interaction_round(green_team)
-    green, red_skip = red_interaction_round(green, red_team)
+    while True:
+        time.sleep(1)
+        rounds = rounds + 1
 
-    if red_skip:
-        print("red skip")
+        green = get_green()
 
-    endofround_green, energy = blue(green, blue_team, grey_team, blue_energy, lifeline)
-    print(energy)
-    game_result(endofround_green)
+        # round where all green agents interact with each of their neighbours, potentially changing their opinions and uncertainty
+        green_interaction_round(green)
 
-    # i = 1
-    # while i < blue_max:
-    #     i = i + 1
-    #
-    #     green = green_interaction_round(green_team)
-    #     green, red_skip = red_interaction_round(green, red_team)
-    #
-    #     if red_skip:
-    #         print("red skip")
-    #
-    #     endof_round_green = blue(green, blue_team, grey_team, blue_energy)
+        green = get_green()
 
+        # round where the red agent interacts with all members in green team, potentially affecting their opinions
+        #
+        red_skip = red_interaction_round(green, red_team)
 
+        if red_skip:
+            print("red skip")
 
-    # green, game_state = blue_interaction_round(green, blue_team, grey_team)
+        green = get_green()
+        blue_energy = get_energy()
+        print(blue_energy)
 
+        # round where the blue agent interacts with all members of the green team, potentially affecting their opinions
+        # the goal of the blue agent is to convince those who are following the red team to follow them instead
+        # blue team cannot lose followers
+        # each time the blue agent interacts with an agent with a high certainty (0.7 to 1) they lose more energy
+        # the blue agent can either lose energy or none at all during a round
+        # if the blue agent does run out of energy, they can introduce a grey agent (blue round with no energy cost)
+        # however there may be a chance that the grey agent is a spy, which gives the red agent a free round during blue teams round
+        blue(green, blue_team, grey_team, blue_energy, lifeline)
 
+        current_energy = get_energy()
+        # print(current_energy)
 
-    # agents after redgreen interation
-    # current_green_agents = lose_followers(redgreen_interaction)
-    # current_green_agents = blue_interaction_round(current_green_agents, blue_team, grey_team)
-    # game_result(current_green_agents)
-    # visualize_game(network)
-    # g_dict = nx.to_dict_of_dicts(network)
+        green = get_green()
+        # check_current_state(green)
 
+        if current_energy >= 20:
+            game_result(green, rounds)
+            clear_energy()
+            break
 def green_interaction_round(green_team):
     for node in green_team.nodes():
         temp = list(green_team.neighbors(node))
@@ -66,7 +70,8 @@ def green_interaction_round(green_team):
             # set the updated values to agent2
             nx.set_node_attributes(green_team, {temp[x]: agent2_updated_opinion}, name="opinion")
             nx.set_node_attributes(green_team, {temp[x]: agent2_updated_uncertainty}, name="uncertainty")
-    return green_team
+    # return green_team
+    save_green(green_team)
 
 def red_message_selection(red_msgs):
     print("1. lvl1 potency msg")
@@ -117,7 +122,8 @@ def red_interaction_round(green_team, red_team):
             nx.set_node_attributes(green_team, {node: "red"}, name="following")
             red_skip = True
 
-    return green_team, red_skip
+    save_green(green_team)
+    return red_skip
 
 # should return new opinion and uncertainty of agent1
 def green_interaction(green_team, node1, node2):
@@ -199,13 +205,14 @@ def blue(green_team, blue_team, grey_team, energy, lifeline):
 
         # message is not potent enough to have an affect
         if random_msg == "lvl1 potency":
-            energy = energy - 2
+            energy = energy
         elif random_msg == "lvl2 potency":
-            energy = energy - 1
+            energy = energy
         elif random_msg == "lvl3 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] > 0.5:
             chance = random.choice([0, 1])
             if chance == 1:
                 nx.set_node_attributes(green_team, {node: "blue"}, name="following")
+                energy + 1
         # highly potent message and agent wants to vote
         elif random_msg == "lvl4 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] > 0.5:
             nx.set_node_attributes(green_team, {node: "blue"}, name="following")
@@ -214,46 +221,9 @@ def blue(green_team, blue_team, grey_team, energy, lifeline):
             nx.set_node_attributes(green_team, {node: "blue"}, name="following")
             energy = energy + 3
 
-    return green_team, energy
+    save_green(green_team)
+    save_energy(energy)
 
-def blue_interaction_round(green_agents, blue_agent, grey_team):
-    energy = 0
-    lifeline_used = False
-    current_interaction = nx.compose(green_agents, blue_agent)
-    random_choice = choice(list(grey_team.nodes()))
-    # print(random_choice)
-    # go through each green agent in the network and check their confidence level, if they are certain
-    for node in current_interaction.nodes():
-        # make sure blue team doesn't use more excessive energy interacting with green team
-        if energy < 10:
-            if "confidence" in current_interaction.nodes[node]:
-                if current_interaction.nodes[node]["confidence"] == "uncertain":
-                    nx.set_node_attributes(green_agents, {node: "blue"}, name="following")
-                elif current_interaction.nodes[node]["confidence"] == "certain":
-                    energy = energy + 1
-                    # if energy is not exhausted keep interacting with green agents
-                    if energy == 10:
-                        print("blue team has used up all of its energy!")
-                        # the blue team has a 1/2 chance of introducing a grey agent if they run out of energy
-                        random_chance = random.choice([1, 2])
-                        if random_chance == 1:
-                            print("no grey agent")
-                            break
-                        elif random_chance == 2:
-                            print(grey_team.nodes[random_choice])
-                            # however, there is a chance that the grey agent is a spy
-                            if grey_team.nodes[random_choice]["allegiance"] == "bad":
-                                lifeline_used = True
-                                energy = 0
-                                print("grey agent is a spy!")
-                            elif grey_team.nodes[random_choice]["allegiance"] == "good":
-                                lifeline_used = True
-                                energy = 0
-                                print("grey agent is NOT a spy!")
-                    else:
-                        continue
-    return green_agents
-                    # print(current_interaction.nodes[node])
 def lose_followers(agents):
     # make a copy of graph you can iterate over
     temp_copy = agents.copy()
@@ -296,9 +266,10 @@ def check_current_state(green):
     print("current red followers: ", red)
     print("current blue followers: ", blue)
 # returns the result of the game once the game has ended
-def game_result(green_team):
+def game_result(green_team, game_rounds):
     red = 0
     blue = 0
+
     for node in green_team.nodes():
         # print(green_team.nodes[node]["following"])
         if "following" in green_team.nodes[node]:
@@ -306,6 +277,7 @@ def game_result(green_team):
                 red = red + 1
             elif green_team.nodes[node]["following"] == "blue":
                 blue = blue + 1
+    print("election has ended after", game_rounds, "rounds of voting!")
     if red > blue:
         print("red team wins!")
         print("red followers: ", red)
