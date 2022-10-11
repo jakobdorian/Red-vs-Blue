@@ -2,7 +2,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import random
 from random import choice, sample
-from helper import save_green, get_green, save_energy, get_energy, clear_energy
+from helper import save_green, get_green, save_energy, get_energy, clear_energy, save_lifeline, get_lifeline
 import pandas as pd
 import numpy as np
 import time
@@ -12,7 +12,9 @@ def start_game(network, green_team, red_team, blue_team, grey_team):
     clear_energy()
     blue_max = 20
     energy = 0
+
     save_green(green_team)
+    save_lifeline(lifeline)
     rounds = 0
     # check_voters()
 
@@ -48,7 +50,7 @@ def start_game(network, green_team, red_team, blue_team, grey_team):
         # the blue agent can either lose energy or none at all during a round
         # if the blue agent does run out of energy, they can introduce a grey agent (blue round with no energy cost)
         # however there may be a chance that the grey agent is a spy, which gives the red agent a free round during blue teams round
-        blue_round(green, blue_team, grey_team, blue_energy, lifeline)
+        blue_round(green, blue_team, grey_team, blue_energy)
         rounds = rounds + 1
 
         current_energy = get_energy()
@@ -56,11 +58,29 @@ def start_game(network, green_team, red_team, blue_team, grey_team):
 
         green = get_green()
         # check_current_state(green)
-
-        if current_energy >= 50:
+        lifeline = get_lifeline()
+        if current_energy >= 50 and lifeline == False:
+            lifeline = True
+            # reset energy
+            energy = 0
+            save_energy(energy)
+            print("lifeline used")
+            save_lifeline(lifeline)
+            random_choice = choice(list(grey_team.nodes()))
+            if grey_team.nodes[random_choice]["allegiance"] == "bad":
+                # lifeline = True
+                print("grey agent is spy")
+                grey_bad_round(green_team)
+            elif grey_team.nodes[random_choice]["allegiance"] == "good":
+                # lifeline = True
+                energy = 0
+                print("blue team has another round, thanks to grey team")
+                grey_good_round(green_team)
+        elif current_energy >= 50 and lifeline == True:
             game_result(green, rounds)
             clear_energy()
             break
+
 def green_round(green_team):
     for node in green_team.nodes():
         temp = list(green_team.neighbors(node))
@@ -246,30 +266,10 @@ def update_rules(agent1_starting_opinion, agent1_starting_uncertainty, agent2_st
         # print("!!!! no conditions met")
         return agent1_starting_opinion, agent1_starting_uncertainty, agent2_starting_opinion, agent2_starting_uncertainty
 
-def blue_round(green_team, blue_team, grey_team, energy, lifeline):
-    # 80% of the nodes in green team
-    energy_max = 100
+def blue_round(green_team, blue_team, grey_team, energy):
     # correction messages
     blue_msgs = ["lvl1 potency", "lvl2 potency", "lvl3 potency", "lvl4 potency", "lvl5 potency"]
     # if blue team uses all of its energy, the game ends
-    random_msg = random.choice(blue_msgs)
-    print(energy)
-    if energy >= energy_max:
-        print("implement special grey round")
-        random_choice = choice(list(grey_team.nodes()))
-        if grey_team.nodes[random_choice]["allegiance"] == "bad":
-            lifeline = True
-            # energy = 0
-            print("grey agent is spy")
-            # implement a special grey-red interaction round
-            grey_good_round(green_team)
-        elif grey_team.nodes[random_choice]["allegiance"] == "good":
-            lifeline = True
-            energy = 0
-            print("blue team has another round")
-            #implement a special grey-good interaction round
-            grey_good_round(green_team)
-
 
     for node in green_team.nodes():
         # randomly pick a potent message - TESTING
@@ -305,19 +305,21 @@ def grey_good_round(green_team):
         # randomly pick a potent message - TESTING
         random_msg = random.choice(blue_msgs)
 
-        # message is not potent enough to have an affect
-        if random_msg == "lvl1 potency":
-            print("")
-        elif random_msg == "lvl2 potency":
-            print("")
-        elif random_msg == "lvl3 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] > 0.5:
-            chance = random.choice([0, 1])
-            if chance == 1:
-                nx.set_node_attributes(green_team, {node: "blue"}, name="following")
-        # highly potent message and agent wants to vote
-        elif random_msg == "lvl4 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] > 0.5:
-            nx.set_node_attributes(green_team, {node: "blue"}, name="following")
+        a1_opinion, a1_uncertainty, blue_opinion, blue_uncertainty = blue_interaction(green_team, node)
 
+        nx.set_node_attributes(green_team, {node: a1_opinion}, name="opinion")
+        nx.set_node_attributes(green_team, {node: a1_uncertainty}, name="uncertainty")
+
+        # message is not potent enough to have an affect
+        if random_msg == "lvl1 potency" and green_team.nodes[node]["opinion"] == 0 and green_team.nodes[node]["uncertainty"] == -1.0:
+            print("")
+        elif random_msg == "lvl2 potency" and green_team.nodes[node]["opinion"] == 0 and green_team.nodes[node]["uncertainty"] < -0.5:
+            print("")
+        elif random_msg == "lvl3 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] == 0:
+            nx.set_node_attributes(green_team, {node: "blue"}, name="following")
+        # highly potent message and agent wants to vote
+        elif random_msg == "lvl4 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] > 0.2:
+            nx.set_node_attributes(green_team, {node: "blue"}, name="following")
         elif random_msg == "lvl5 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] > 0.5:
             nx.set_node_attributes(green_team, {node: "blue"}, name="following")
 
@@ -332,21 +334,27 @@ def grey_bad_round(green_team):
         # randomly pick a potent message - TESTING
         current_redmsg = random.choice(red_msgs)
 
+        a1_opinion, a1_uncertainty, red_opinion, red_uncertainty = red_interaction(green_team, node)
+
+        # update new values
+        nx.set_node_attributes(green_team, {node: a1_opinion}, name="opinion")
+        nx.set_node_attributes(green_team, {node: a1_uncertainty}, name="uncertainty")
+
         # message is not potent enough to have an affect
-        if current_redmsg == "lvl1 potency":
+        if current_redmsg == "lvl1 potency" and green_team.nodes[node]["uncertainty"] < -0.5 and green_team.nodes[node]["opinion"] == 0:
+            print("want to vote for blue")
             break
-        elif current_redmsg == "lvl2 potency":
+        elif current_redmsg == "lvl2 potency" and green_team.nodes[node]["uncertainty"] < 0:
+            nx.set_node_attributes(green_team, {node: "red"}, name="following")
             break
-        elif current_redmsg == "lvl3 potency" and green_team.nodes[node]["opinion"] == 1:
-            chance = random.choice([0, 1])
-            if chance == 1:
-                nx.set_node_attributes(green_team, {node: "red"}, name="following")
+        elif current_redmsg == "lvl3 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] > 0:
+            nx.set_node_attributes(green_team, {node: "red"}, name="following")
         # highly potent message and agent wants to vote
-        elif current_redmsg == "lvl4 potency" and green_team.nodes[node]["opinion"] == 1:
+        elif current_redmsg == "lvl4 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] > 0.2:
             nx.set_node_attributes(green_team, {node: "red"}, name="following")
             red_skip = True
-        elif current_redmsg == "lvl5 potency" and green_team.nodes[node]["opinion"] == 1:
-            nx.set_node_attributes(green_team, {node: "red"}, name="following")
+        elif current_redmsg == "lvl5 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] > 0.5:
+            nx.set_node_attributes(green_team, {node: "no vote"}, name="following")
             red_skip = True
 
     save_green(green_team)

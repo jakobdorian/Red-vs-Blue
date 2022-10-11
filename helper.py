@@ -2,6 +2,7 @@ import networkx as nx
 
 green_team = nx.Graph()
 energy = 0
+lifeline = False
 
 # save the current green team
 def save_green(green):
@@ -21,3 +22,10 @@ def get_energy():
 def clear_energy():
     global energy
     energy = 0
+
+def save_lifeline(current_lifeline):
+    global lifeline
+    lifeline = current_lifeline
+
+def get_lifeline():
+    return lifeline
