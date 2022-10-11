@@ -54,8 +54,10 @@ def create_teams():
         # 0 indicates the agent does not want to vote
         random_opinion = random.choice([0, 1])
         random_interval = round(random.uniform(-1.0, 1.0), 1)
+        # random_interval = round(random.uniform(0.0, 1.0), 1)
         nx.set_node_attributes(greenTeam_graph, {node: random_opinion}, name="opinion")
         nx.set_node_attributes(greenTeam_graph, {node: random_interval}, name="uncertainty")
+        nx.set_node_attributes(greenTeam_graph, {node: "no vote"}, name="following")
 
     # SET ATTRIBUTES TO EACH NODE
     nx.set_node_attributes(greenTeam_graph, "green", name="team")
