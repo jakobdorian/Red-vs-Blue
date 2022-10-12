@@ -146,28 +146,6 @@ def red_round(green_team, red_team):
         nx.set_node_attributes(green_team, {node: a1_opinion}, name="opinion")
         nx.set_node_attributes(green_team, {node: a1_uncertainty}, name="uncertainty")
 
-        # message is not potent enough to have an affect
-        # if current_redmsg == "lvl1 potency" and green_team.nodes[node]["uncertainty"] < -0.5 and green_team.nodes[node]["opinion"] == 1:
-        #     print("want to vote for blue")
-        #
-        #     break
-        # elif current_redmsg == "lvl2 potency" and green_team.nodes[node]["uncertainty"] < 0:
-        #     nx.set_node_attributes(green_team, {node: "red"}, name="following")
-        #     network.add_edge(node, RED_NODE)
-        #     break
-        # elif current_redmsg == "lvl3 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] > 1:
-        #     nx.set_node_attributes(green_team, {node: "red"}, name="following")
-        #     network.add_edge(node, RED_NODE)
-        # # highly potent message and agent wants to vote
-        # elif current_redmsg == "lvl4 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] > 0.2:
-        #     nx.set_node_attributes(green_team, {node: "red"}, name="following")
-        #     network.add_edge(node, RED_NODE)
-        #     red_skip = True
-        # elif current_redmsg == "lvl5 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] > 0.5:
-        #     nx.set_node_attributes(green_team, {node: "no vote"}, name="following")
-        #     network.add_edge(node, RED_NODE)
-        #     red_skip = True
-
         # node wants to vote
         if green_team.nodes[node]["opinion"] == 1:
             # node is certain
@@ -351,28 +329,6 @@ def blue_round(green_team, blue_team, grey_team, energy):
         nx.set_node_attributes(green_team, {node: a1_opinion}, name="opinion")
         nx.set_node_attributes(green_team, {node: a1_uncertainty}, name="uncertainty")
 
-        # # node is certain
-        # if random_msg == "lvl1 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] < -0.3:
-        #     energy = energy + 3
-        # # node is certain
-        # elif random_msg == "lvl2 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] < -0.5:
-        #     energy = energy + 2
-        # # node is neutral
-        # elif random_msg == "lvl3 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] == 0:
-        #     nx.set_node_attributes(green_team, {node: "blue"}, name="following")
-        #     network.add_edge(node, BLUE_NODE)
-        #     energy + 1
-        # # node is uncertain
-        # elif random_msg == "lvl4 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] > 0.2:
-        #     nx.set_node_attributes(green_team, {node: "blue"}, name="following")
-        #     network.add_edge(node, BLUE_NODE)
-        #     energy = energy - 1
-        # # node is uncertain
-        # elif random_msg == "lvl5 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] > 0.5:
-        #     nx.set_node_attributes(green_team, {node: "blue"}, name="following")
-        #     network.add_edge(node, BLUE_NODE)
-        #     energy = energy - 2
-
         # node wants to vote
         if green_team.nodes[node]["opinion"] == 1:
             # node is certain
@@ -455,26 +411,6 @@ def grey_good_round(green_team, grey_node):
         nx.set_node_attributes(green_team, {node: a1_opinion}, name="opinion")
         nx.set_node_attributes(green_team, {node: a1_uncertainty}, name="uncertainty")
 
-        # # message is not potent enough to have an affect
-        # # node is certain
-        # if random_msg == "lvl1 potency" and green_team.nodes[node]["opinion"] == 0 and green_team.nodes[node]["uncertainty"] < -0.3:
-        #     print("")
-        # # node is certain
-        # elif random_msg == "lvl2 potency" and green_team.nodes[node]["opinion"] == 0 and green_team.nodes[node]["uncertainty"] < -0.5:
-        #     print("")
-        # # node is neutral
-        # elif random_msg == "lvl3 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] == 0:
-        #     nx.set_node_attributes(green_team, {node: "blue"}, name="following")
-        #     network.add_edge(node, grey_node)
-        # # node is uncertain
-        # elif random_msg == "lvl4 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] > 0.2:
-        #     nx.set_node_attributes(green_team, {node: "blue"}, name="following")
-        #     network.add_edge(node, grey_node)
-        # # node is uncertain
-        # elif random_msg == "lvl5 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] > 0.5:
-        #     nx.set_node_attributes(green_team, {node: "blue"}, name="following")
-        #     network.add_edge(node, grey_node)
-
         # node wants to vote
         if green_team.nodes[node]["opinion"] == 1:
             # node is certain
@@ -549,22 +485,6 @@ def grey_bad_round(green_team, grey_node):
         # update new values
         nx.set_node_attributes(green_team, {node: a1_opinion}, name="opinion")
         nx.set_node_attributes(green_team, {node: a1_uncertainty}, name="uncertainty")
-
-        # # message is not potent enough to have an affect
-        # if current_redmsg == "lvl1 potency" and green_team.nodes[node]["uncertainty"] < -0.5 and green_team.nodes[node]["opinion"] == 0:
-        #     print("want to vote for blue")
-        # elif current_redmsg == "lvl2 potency" and green_team.nodes[node]["uncertainty"] < 0:
-        #     nx.set_node_attributes(green_team, {node: "red"}, name="following")
-        #     network.add_edge(node, grey_node)
-        # elif current_redmsg == "lvl3 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] > 0:
-        #     nx.set_node_attributes(green_team, {node: "red"}, name="following")
-        # # highly potent message and agent wants to vote
-        # elif current_redmsg == "lvl4 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] > 0.2:
-        #     nx.set_node_attributes(green_team, {node: "red"}, name="following")
-        #     network.add_edge(node, grey_node)
-        # elif current_redmsg == "lvl5 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] > 0.5:
-        #     nx.set_node_attributes(green_team, {node: "no vote"}, name="following")
-        #     network.add_edge(node, grey_node)
 
         # node wants to vote
         if green_team.nodes[node]["opinion"] == 1:
