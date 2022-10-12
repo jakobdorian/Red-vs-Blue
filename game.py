@@ -6,6 +6,7 @@ from helper import save_green, get_green, save_energy, get_energy, clear_energy,
 import pandas as pd
 import numpy as np
 import time
+
 RED_NODE = 26
 BLUE_NODE = 27
 def start_game(network, green_team, red_team, blue_team, grey_team):
@@ -80,11 +81,11 @@ def start_game(network, green_team, red_team, blue_team, grey_team):
                 energy = 0
                 print("blue team has another round, thanks to grey team")
                 grey_good_round(green_team, random_choice)
-        elif current_energy >= 50 and lifeline == True:
+        elif current_energy >= 100 and lifeline == True:
             game_result(green, rounds)
             clear_energy()
             network = get_network()
-            visualize_game(network)
+            # visualize_game(network)
             break
 
 def green_round(green_team):
@@ -137,7 +138,7 @@ def red_round(green_team, red_team):
         # player_message = red_message_selection(red_msgs)
 
         # randomly pick a potent message - TESTING
-        current_redmsg = random.choice(red_msgs)
+        random_msg = random.choice(red_msgs)
         # current_redmsg = red_msgs[4]
         a1_opinion, a1_uncertainty, red_opinion, red_uncertainty = red_interaction(green_team, node)
 
@@ -146,26 +147,84 @@ def red_round(green_team, red_team):
         nx.set_node_attributes(green_team, {node: a1_uncertainty}, name="uncertainty")
 
         # message is not potent enough to have an affect
-        if current_redmsg == "lvl1 potency" and green_team.nodes[node]["uncertainty"] < -0.5 and green_team.nodes[node]["opinion"] == 0:
-            print("want to vote for blue")
+        # if current_redmsg == "lvl1 potency" and green_team.nodes[node]["uncertainty"] < -0.5 and green_team.nodes[node]["opinion"] == 1:
+        #     print("want to vote for blue")
+        #
+        #     break
+        # elif current_redmsg == "lvl2 potency" and green_team.nodes[node]["uncertainty"] < 0:
+        #     nx.set_node_attributes(green_team, {node: "red"}, name="following")
+        #     network.add_edge(node, RED_NODE)
+        #     break
+        # elif current_redmsg == "lvl3 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] > 1:
+        #     nx.set_node_attributes(green_team, {node: "red"}, name="following")
+        #     network.add_edge(node, RED_NODE)
+        # # highly potent message and agent wants to vote
+        # elif current_redmsg == "lvl4 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] > 0.2:
+        #     nx.set_node_attributes(green_team, {node: "red"}, name="following")
+        #     network.add_edge(node, RED_NODE)
+        #     red_skip = True
+        # elif current_redmsg == "lvl5 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] > 0.5:
+        #     nx.set_node_attributes(green_team, {node: "no vote"}, name="following")
+        #     network.add_edge(node, RED_NODE)
+        #     red_skip = True
 
-            break
-        elif current_redmsg == "lvl2 potency" and green_team.nodes[node]["uncertainty"] < 0:
-            nx.set_node_attributes(green_team, {node: "red"}, name="following")
-            network.add_edge(node, RED_NODE)
-            break
-        elif current_redmsg == "lvl3 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] > 0:
-            nx.set_node_attributes(green_team, {node: "red"}, name="following")
-            network.add_edge(node, RED_NODE)
-        # highly potent message and agent wants to vote
-        elif current_redmsg == "lvl4 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] > 0.2:
-            nx.set_node_attributes(green_team, {node: "red"}, name="following")
-            network.add_edge(node, RED_NODE)
-            red_skip = True
-        elif current_redmsg == "lvl5 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] > 0.5:
-            nx.set_node_attributes(green_team, {node: "no vote"}, name="following")
-            network.add_edge(node, RED_NODE)
-            red_skip = True
+        # node wants to vote
+        if green_team.nodes[node]["opinion"] == 1:
+            # node is certain
+            if green_team.nodes[node]["uncertainty"] < 0:
+                if random_msg == "lvl1 potency":
+                    chance = random.choice([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+                    if chance == 1:
+                        nx.set_node_attributes(green_team, {node: "red"}, name="following")
+                        network.add_edge(node, RED_NODE)
+                elif random_msg == "lvl2 potency":
+                    chance = random.choice([0, 1, 2, 3, 4, 5, 6, 7, 8])
+                    if chance == 1:
+                        nx.set_node_attributes(green_team, {node: "red"}, name="following")
+                        network.add_edge(node, RED_NODE)
+                elif random_msg == "lvl3 potency":
+                    chance = random.choice([0, 1, 2, 3, 4, 5])
+                    if chance == 1:
+                        nx.set_node_attributes(green_team, {node: "red"}, name="following")
+                        network.add_edge(node, RED_NODE)
+                elif random_msg == "lvl4 potency":
+                    chance = random.choice([0, 1, 2])
+                    if chance == 1:
+                        nx.set_node_attributes(green_team, {node: "red"}, name="following")
+                        nx.set_node_attributes(green_team, {node: 0}, name="opinion")
+                        network.add_edge(node, RED_NODE)
+                elif random_msg == "lvl5 potency":
+                    chance = random.choice([0, 1, 2])
+                    if chance == 1:
+                        nx.set_node_attributes(green_team, {node: "red"}, name="following")
+                        nx.set_node_attributes(green_team, {node: 0}, name="opinion")
+                        network.add_edge(node, RED_NODE)
+            # node is uncertain
+            elif green_team.nodes[node]["uncertainty"] > 0:
+                if random_msg == "lvl1 potency":
+                    chance = random.choice([0, 1, 2, 3])
+                    if chance == 1:
+                        nx.set_node_attributes(green_team, {node: "red"}, name="following")
+                        network.add_edge(node, RED_NODE)
+                elif random_msg == "lvl2 potency":
+                    chance = random.choice([0, 1, 2])
+                    if chance == 1:
+                        nx.set_node_attributes(green_team, {node: "red"}, name="following")
+                        network.add_edge(node, RED_NODE)
+                elif random_msg == "lvl3 potency":
+                    chance = random.choice([0, 1])
+                    if chance == 1:
+                        nx.set_node_attributes(green_team, {node: "red"}, name="following")
+                        network.add_edge(node, RED_NODE)
+                elif random_msg == "lvl4 potency":
+                    nx.set_node_attributes(green_team, {node: "red"}, name="following")
+                    network.add_edge(node, RED_NODE)
+                    nx.set_node_attributes(green_team, {node: 0}, name="opinion")
+                elif random_msg == "lvl5 potency":
+                    nx.set_node_attributes(green_team, {node: "red"}, name="following")
+                    nx.set_node_attributes(green_team, {node: 0}, name="opinion")
+                    network.add_edge(node, RED_NODE)
+
 
     save_green(green_team)
     save_network(network)
@@ -255,7 +314,7 @@ def update_rules(agent1_starting_opinion, agent1_starting_uncertainty, agent2_st
 
             return agent1_updated_opinion, agent1_updated_uncertainty, agent2_updated_opinion, agent2_updated_uncertainty
     elif agent1_starting_opinion == 0 and agent1_starting_uncertainty < 0.5 and agent2_starting_opinion == 1 and agent2_starting_uncertainty > 0.5:
-        print("4. agent2 influnces agent1 to vote")
+        print("4. agent2 convinces agent1 to vote")
         agent1_updated_opinion = 1
         agent1_updated_uncertainty = agent1_starting_uncertainty + 0.2
 
@@ -292,24 +351,92 @@ def blue_round(green_team, blue_team, grey_team, energy):
         nx.set_node_attributes(green_team, {node: a1_opinion}, name="opinion")
         nx.set_node_attributes(green_team, {node: a1_uncertainty}, name="uncertainty")
 
-        # message is not potent enough to have an affect
-        if random_msg == "lvl1 potency" and green_team.nodes[node]["opinion"] == 0 and green_team.nodes[node]["uncertainty"] == -1.0:
-            energy = energy - 2
-        elif random_msg == "lvl2 potency" and green_team.nodes[node]["opinion"] == 0 and green_team.nodes[node]["uncertainty"] < -0.5:
-            energy = energy - 1
-        elif random_msg == "lvl3 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] == 0:
-            nx.set_node_attributes(green_team, {node: "blue"}, name="following")
-            network.add_edge(node, BLUE_NODE)
-            energy + 1
-        # highly potent message and agent wants to vote
-        elif random_msg == "lvl4 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] > 0.2:
-            nx.set_node_attributes(green_team, {node: "blue"}, name="following")
-            network.add_edge(node, BLUE_NODE)
-            energy = energy + 2
-        elif random_msg == "lvl5 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] > 0.5:
-            nx.set_node_attributes(green_team, {node: "blue"}, name="following")
-            network.add_edge(node, BLUE_NODE)
-            energy = energy + 3
+        # # node is certain
+        # if random_msg == "lvl1 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] < -0.3:
+        #     energy = energy + 3
+        # # node is certain
+        # elif random_msg == "lvl2 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] < -0.5:
+        #     energy = energy + 2
+        # # node is neutral
+        # elif random_msg == "lvl3 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] == 0:
+        #     nx.set_node_attributes(green_team, {node: "blue"}, name="following")
+        #     network.add_edge(node, BLUE_NODE)
+        #     energy + 1
+        # # node is uncertain
+        # elif random_msg == "lvl4 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] > 0.2:
+        #     nx.set_node_attributes(green_team, {node: "blue"}, name="following")
+        #     network.add_edge(node, BLUE_NODE)
+        #     energy = energy - 1
+        # # node is uncertain
+        # elif random_msg == "lvl5 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] > 0.5:
+        #     nx.set_node_attributes(green_team, {node: "blue"}, name="following")
+        #     network.add_edge(node, BLUE_NODE)
+        #     energy = energy - 2
+
+        # node wants to vote
+        if green_team.nodes[node]["opinion"] == 1:
+            # node is certain
+            if green_team.nodes[node]["uncertainty"] < 0:
+                energy = energy + 2
+                if random_msg == "lvl1 potency":
+                    chance = random.choice([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+                    if chance == 1:
+                        nx.set_node_attributes(green_team, {node: "blue"}, name="following")
+                        network.add_edge(node, BLUE_NODE)
+                elif random_msg == "lvl2 potency":
+                    chance = random.choice([0, 1, 2, 3, 4, 5, 6, 7, 8])
+                    if chance == 1:
+                        nx.set_node_attributes(green_team, {node: "blue"}, name="following")
+                        network.add_edge(node, BLUE_NODE)
+                        energy = energy + 1
+                elif random_msg == "lvl3 potency":
+                    chance = random.choice([0, 1, 2, 3, 4, 5])
+                    if chance == 1:
+                        nx.set_node_attributes(green_team, {node: "blue"}, name="following")
+                        network.add_edge(node, BLUE_NODE)
+                        energy = energy + 2
+                elif random_msg == "lvl4 potency":
+                    chance = random.choice([0, 1, 2])
+                    if chance == 1:
+                        nx.set_node_attributes(green_team, {node: "blue"}, name="following")
+                        nx.set_node_attributes(green_team, {node: 0}, name="opinion")
+                        network.add_edge(node, BLUE_NODE)
+                        energy = energy + 3
+                elif random_msg == "lvl5 potency":
+                    chance = random.choice([0, 1, 2])
+                    if chance == 1:
+                        nx.set_node_attributes(green_team, {node: "blue"}, name="following")
+                        nx.set_node_attributes(green_team, {node: 0}, name="opinion")
+                        network.add_edge(node, BLUE_NODE)
+                        energy = energy + 4
+            # node is uncertain
+            elif green_team.nodes[node]["uncertainty"] > 0:
+                energy = energy + 1
+                if random_msg == "lvl1 potency":
+                    chance = random.choice([0, 1, 2, 3])
+                    if chance == 1:
+                        nx.set_node_attributes(green_team, {node: "blue"}, name="following")
+                        network.add_edge(node, BLUE_NODE)
+                elif random_msg == "lvl2 potency":
+                    chance = random.choice([0, 1, 2])
+                    if chance == 1:
+                        nx.set_node_attributes(green_team, {node: "blue"}, name="following")
+                        network.add_edge(node, BLUE_NODE)
+                elif random_msg == "lvl3 potency":
+                    chance = random.choice([0, 1])
+                    if chance == 1:
+                        nx.set_node_attributes(green_team, {node: "blue"}, name="following")
+                        network.add_edge(node, BLUE_NODE)
+                elif random_msg == "lvl4 potency":
+                    nx.set_node_attributes(green_team, {node: "blue"}, name="following")
+                    nx.set_node_attributes(green_team, {node: 0}, name="opinion")
+                    network.add_edge(node, BLUE_NODE)
+                    energy = energy + 1
+                elif random_msg == "lvl5 potency":
+                    nx.set_node_attributes(green_team, {node: "blue"}, name="following")
+                    nx.set_node_attributes(green_team, {node: 0}, name="opinion")
+                    network.add_edge(node, BLUE_NODE)
+                    energy = energy + 2
 
     save_green(green_team)
     save_network(network)
@@ -328,22 +455,82 @@ def grey_good_round(green_team, grey_node):
         nx.set_node_attributes(green_team, {node: a1_opinion}, name="opinion")
         nx.set_node_attributes(green_team, {node: a1_uncertainty}, name="uncertainty")
 
-        # message is not potent enough to have an affect
-        if random_msg == "lvl1 potency" and green_team.nodes[node]["opinion"] == 0 and green_team.nodes[node]["uncertainty"] == -1.0:
-            print("")
-        elif random_msg == "lvl2 potency" and green_team.nodes[node]["opinion"] == 0 and green_team.nodes[node]["uncertainty"] < -0.5:
-            print("")
-        elif random_msg == "lvl3 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] == 0:
-            nx.set_node_attributes(green_team, {node: "blue"}, name="following")
-            network.add_edge(node, grey_node)
+        # # message is not potent enough to have an affect
+        # # node is certain
+        # if random_msg == "lvl1 potency" and green_team.nodes[node]["opinion"] == 0 and green_team.nodes[node]["uncertainty"] < -0.3:
+        #     print("")
+        # # node is certain
+        # elif random_msg == "lvl2 potency" and green_team.nodes[node]["opinion"] == 0 and green_team.nodes[node]["uncertainty"] < -0.5:
+        #     print("")
+        # # node is neutral
+        # elif random_msg == "lvl3 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] == 0:
+        #     nx.set_node_attributes(green_team, {node: "blue"}, name="following")
+        #     network.add_edge(node, grey_node)
+        # # node is uncertain
+        # elif random_msg == "lvl4 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] > 0.2:
+        #     nx.set_node_attributes(green_team, {node: "blue"}, name="following")
+        #     network.add_edge(node, grey_node)
+        # # node is uncertain
+        # elif random_msg == "lvl5 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] > 0.5:
+        #     nx.set_node_attributes(green_team, {node: "blue"}, name="following")
+        #     network.add_edge(node, grey_node)
 
-        # highly potent message and agent wants to vote
-        elif random_msg == "lvl4 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] > 0.2:
-            nx.set_node_attributes(green_team, {node: "blue"}, name="following")
-            network.add_edge(node, grey_node)
-        elif random_msg == "lvl5 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] > 0.5:
-            nx.set_node_attributes(green_team, {node: "blue"}, name="following")
-            network.add_edge(node, grey_node)
+        # node wants to vote
+        if green_team.nodes[node]["opinion"] == 1:
+            # node is certain
+            if green_team.nodes[node]["uncertainty"] < 0:
+                if random_msg == "lvl1 potency":
+                    chance = random.choice([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+                    if chance == 1:
+                        nx.set_node_attributes(green_team, {node: "blue"}, name="following")
+                        network.add_edge(node, grey_node)
+                elif random_msg == "lvl2 potency":
+                    chance = random.choice([0, 1, 2, 3, 4, 5, 6, 7, 8])
+                    if chance == 1:
+                        nx.set_node_attributes(green_team, {node: "blue"}, name="following")
+                        network.add_edge(node, grey_node)
+                elif random_msg == "lvl3 potency":
+                    chance = random.choice([0, 1, 2, 3, 4, 5])
+                    if chance == 1:
+                        nx.set_node_attributes(green_team, {node: "blue"}, name="following")
+                        network.add_edge(node, grey_node)
+                elif random_msg == "lvl4 potency":
+                    chance = random.choice([0, 1, 2])
+                    if chance == 1:
+                        nx.set_node_attributes(green_team, {node: "blue"}, name="following")
+                        nx.set_node_attributes(green_team, {node: 0}, name="opinion")
+                        network.add_edge(node, grey_node)
+                elif random_msg == "lvl5 potency":
+                    chance = random.choice([0, 1, 2])
+                    if chance == 1:
+                        nx.set_node_attributes(green_team, {node: "blue"}, name="following")
+                        nx.set_node_attributes(green_team, {node: 0}, name="opinion")
+                        network.add_edge(node, grey_node)
+            # node is uncertain
+            elif green_team.nodes[node]["uncertainty"] > 0:
+                if random_msg == "lvl1 potency":
+                    chance = random.choice([0, 1, 2, 3])
+                    if chance == 1:
+                        nx.set_node_attributes(green_team, {node: "blue"}, name="following")
+                        network.add_edge(node, grey_node)
+                elif random_msg == "lvl2 potency":
+                    chance = random.choice([0, 1, 2])
+                    if chance == 1:
+                        nx.set_node_attributes(green_team, {node: "blue"}, name="following")
+                        network.add_edge(node, grey_node)
+                elif random_msg == "lvl3 potency":
+                    chance = random.choice([0, 1])
+                    if chance == 1:
+                        nx.set_node_attributes(green_team, {node: "blue"}, name="following")
+                        network.add_edge(node, grey_node)
+                elif random_msg == "lvl4 potency":
+                    nx.set_node_attributes(green_team, {node: "blue"}, name="following")
+                    nx.set_node_attributes(green_team, {node: 0}, name="opinion")
+                    network.add_edge(node, grey_node)
+                elif random_msg == "lvl5 potency":
+                    nx.set_node_attributes(green_team, {node: "blue"}, name="following")
+                    nx.set_node_attributes(green_team, {node: 0}, name="opinion")
+                    network.add_edge(node, grey_node)
 
     save_green(green_team)
 
@@ -355,7 +542,7 @@ def grey_bad_round(green_team, grey_node):
         # player_message = red_message_selection(red_msgs)
 
         # randomly pick a potent message - TESTING
-        current_redmsg = random.choice(red_msgs)
+        random_msg = random.choice(red_msgs)
 
         a1_opinion, a1_uncertainty, red_opinion, red_uncertainty = red_interaction(green_team, node)
 
@@ -363,21 +550,78 @@ def grey_bad_round(green_team, grey_node):
         nx.set_node_attributes(green_team, {node: a1_opinion}, name="opinion")
         nx.set_node_attributes(green_team, {node: a1_uncertainty}, name="uncertainty")
 
-        # message is not potent enough to have an affect
-        if current_redmsg == "lvl1 potency" and green_team.nodes[node]["uncertainty"] < -0.5 and green_team.nodes[node]["opinion"] == 0:
-            print("want to vote for blue")
-        elif current_redmsg == "lvl2 potency" and green_team.nodes[node]["uncertainty"] < 0:
-            nx.set_node_attributes(green_team, {node: "red"}, name="following")
-            network.add_edge(node, grey_node)
-        elif current_redmsg == "lvl3 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] > 0:
-            nx.set_node_attributes(green_team, {node: "red"}, name="following")
-        # highly potent message and agent wants to vote
-        elif current_redmsg == "lvl4 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] > 0.2:
-            nx.set_node_attributes(green_team, {node: "red"}, name="following")
-            network.add_edge(node, grey_node)
-        elif current_redmsg == "lvl5 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] > 0.5:
-            nx.set_node_attributes(green_team, {node: "no vote"}, name="following")
-            network.add_edge(node, grey_node)
+        # # message is not potent enough to have an affect
+        # if current_redmsg == "lvl1 potency" and green_team.nodes[node]["uncertainty"] < -0.5 and green_team.nodes[node]["opinion"] == 0:
+        #     print("want to vote for blue")
+        # elif current_redmsg == "lvl2 potency" and green_team.nodes[node]["uncertainty"] < 0:
+        #     nx.set_node_attributes(green_team, {node: "red"}, name="following")
+        #     network.add_edge(node, grey_node)
+        # elif current_redmsg == "lvl3 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] > 0:
+        #     nx.set_node_attributes(green_team, {node: "red"}, name="following")
+        # # highly potent message and agent wants to vote
+        # elif current_redmsg == "lvl4 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] > 0.2:
+        #     nx.set_node_attributes(green_team, {node: "red"}, name="following")
+        #     network.add_edge(node, grey_node)
+        # elif current_redmsg == "lvl5 potency" and green_team.nodes[node]["opinion"] == 1 and green_team.nodes[node]["uncertainty"] > 0.5:
+        #     nx.set_node_attributes(green_team, {node: "no vote"}, name="following")
+        #     network.add_edge(node, grey_node)
+
+        # node wants to vote
+        if green_team.nodes[node]["opinion"] == 1:
+            # node is certain
+            if green_team.nodes[node]["uncertainty"] < 0:
+                if random_msg == "lvl1 potency":
+                    chance = random.choice([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+                    if chance == 1:
+                        nx.set_node_attributes(green_team, {node: "red"}, name="following")
+                        network.add_edge(node, grey_node)
+                elif random_msg == "lvl2 potency":
+                    chance = random.choice([0, 1, 2, 3, 4, 5, 6, 7, 8])
+                    if chance == 1:
+                        nx.set_node_attributes(green_team, {node: "red"}, name="following")
+                        network.add_edge(node, grey_node)
+                elif random_msg == "lvl3 potency":
+                    chance = random.choice([0, 1, 2, 3, 4, 5])
+                    if chance == 1:
+                        nx.set_node_attributes(green_team, {node: "red"}, name="following")
+                        network.add_edge(node, grey_node)
+                elif random_msg == "lvl4 potency":
+                    chance = random.choice([0, 1, 2])
+                    if chance == 1:
+                        nx.set_node_attributes(green_team, {node: "red"}, name="following")
+                        nx.set_node_attributes(green_team, {node: 0}, name="opinion")
+                        network.add_edge(node, grey_node)
+                elif random_msg == "lvl5 potency":
+                    chance = random.choice([0, 1, 2])
+                    if chance == 1:
+                        nx.set_node_attributes(green_team, {node: "red"}, name="following")
+                        nx.set_node_attributes(green_team, {node: 0}, name="opinion")
+                        network.add_edge(node, grey_node)
+            # node is uncertain
+            elif green_team.nodes[node]["uncertainty"] > 0:
+                if random_msg == "lvl1 potency":
+                    chance = random.choice([0, 1, 2, 3])
+                    if chance == 1:
+                        nx.set_node_attributes(green_team, {node: "red"}, name="following")
+                        network.add_edge(node, grey_node)
+                elif random_msg == "lvl2 potency":
+                    chance = random.choice([0, 1, 2])
+                    if chance == 1:
+                        nx.set_node_attributes(green_team, {node: "red"}, name="following")
+                        network.add_edge(node, grey_node)
+                elif random_msg == "lvl3 potency":
+                    chance = random.choice([0, 1])
+                    if chance == 1:
+                        nx.set_node_attributes(green_team, {node: "red"}, name="following")
+                        network.add_edge(node, grey_node)
+                elif random_msg == "lvl4 potency":
+                    nx.set_node_attributes(green_team, {node: "red"}, name="following")
+                    nx.set_node_attributes(green_team, {node: 0}, name="opinion")
+                    network.add_edge(node, grey_node)
+                elif random_msg == "lvl5 potency":
+                    nx.set_node_attributes(green_team, {node: "red"}, name="following")
+                    nx.set_node_attributes(green_team, {node: 0}, name="opinion")
+                    network.add_edge(node, grey_node)
 
     save_green(green_team)
 
@@ -454,11 +698,17 @@ def game_result(green_team, game_rounds):
         print("red team wins!")
         print("red followers: ", red)
         print("blue followers: ", blue)
+        total = red + blue
+        print("total voters: ", total)
     elif blue > red:
         print("blue team wins!")
         print("red followers: ", red)
         print("blue followers: ", blue)
+        total = red + blue
+        print("total voters: ", total)
     elif red == blue:
         print("it's a tie!")
         print("red followers: ", red)
         print("blue followers: ", blue)
+        total = red + blue
+        print("total voters: ", total)
