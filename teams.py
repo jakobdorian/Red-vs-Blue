@@ -6,9 +6,7 @@ import random
 def create_teams():
     print("generating teams...")
 
-    # df = pd.read_csv('network-2.csv')
     Graphtype = nx.Graph()
-    # g = nx.from_pandas_edgelist(df, edge_attr='weight', create_using=Graphtype)
 
     data = open('network-2.csv', "r")
     next(data, None)
@@ -60,26 +58,19 @@ def create_teams():
         nx.set_node_attributes(greenTeam_graph, {node: "no vote"}, name="following")
 
     # SET ATTRIBUTES TO EACH NODE
-    nx.set_node_attributes(greenTeam_graph, "green", name="team")
-
     nx.set_node_attributes(greenTeam_graph, "none", name="following")
 
+    nx.set_node_attributes(greenTeam_graph, "green", name="team")
     nx.set_node_attributes(redTeam_graph, "red", name="team")
+    nx.set_node_attributes(greyTeam_graph, "grey", name="team")
+    nx.set_node_attributes(blueTeam_graph, "blue", name="team")
 
     high_uncertainty = round(random.uniform(0.5, 1.0), 1)
     nx.set_node_attributes(redTeam_graph, high_uncertainty, name="uncertainty")
-    nx.set_node_attributes(blueTeam_graph, "blue", name="team")
-    # nx.set_node_attributes(greyTeam_graph, {"grey"}, name="team")
-    # nx.set_node_attributes(greyTeam_good_graph, {"grey-good"}, name="team")
-    # nx.set_node_attributes(greyTeam_bad_graph, {"grey-bad"}, name="team")
 
     # COMBINE ALL TEAMS INTO ONE GRAPH
     temp = nx.compose(redTeam_graph, blueTeam_graph)
     temp2 = nx.compose(temp, greyTeam_graph)
     game_network = nx.compose(greenTeam_graph, temp2)
-
-    # nx.draw(greenTeam_graph)
-    # nx.draw(game_network)
-    # plt.show()
 
     return game_network, greenTeam_graph, redTeam_graph, blueTeam_graph, greyTeam_graph

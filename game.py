@@ -17,6 +17,7 @@ def start_game(network, green_team, red_team, blue_team, grey_team):
     save_lifeline(lifeline)
     rounds = 0
     # check_voters()
+    # visualize_game(network)
 
     while True:
         # time.sleep(1)
@@ -377,15 +378,15 @@ def visualize_game(network):
     color_nodes = []
     for node in network.nodes():
         # print(network.nodes[node]["team"])
-        if network.nodes[node]["team"] == {"green"}:
+        if network.nodes[node]["team"] == "green":
             color_nodes.append('green')
-        elif network.nodes[node]["team"] == {"red"}:
+        elif network.nodes[node]["team"] == "red":
             color_nodes.append('red')
-        elif network.nodes[node]["team"] == {"blue"}:
+        elif network.nodes[node]["team"] == "blue":
             color_nodes.append('blue')
-        elif network.nodes[node]["team"] == {"grey"}:
+        elif network.nodes[node]["team"] == "grey":
             color_nodes.append('grey')
-    # print(color_nodes)
+    print(color_nodes)
     nx.draw(network, node_color=color_nodes, with_labels=True)
     plt.show()
 
