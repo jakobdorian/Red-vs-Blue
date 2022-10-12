@@ -3,7 +3,7 @@ import networkx as nx
 green_team = nx.Graph()
 energy = 0
 lifeline = False
-
+game_network = nx.Graph()
 # save the current green team
 def save_green(green):
     global green_team
@@ -29,3 +29,10 @@ def save_lifeline(current_lifeline):
 
 def get_lifeline():
     return lifeline
+
+def save_network(network):
+    global game_network
+    game_network = network.copy()
+
+def get_network():
+    return game_network
