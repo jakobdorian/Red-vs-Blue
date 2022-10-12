@@ -37,7 +37,7 @@ def create_teams():
     for node in greenTeam_graph.nodes():
         random_opinion = random.choice([0, 1])
         random_interval = round(random.uniform(interval_test.left, interval_test.right), 1)
-        
+
         nx.set_node_attributes(greenTeam_graph, {node: random_opinion}, name="opinion")
         nx.set_node_attributes(greenTeam_graph, {node: random_interval}, name="uncertainty")
         nx.set_node_attributes(greenTeam_graph, {node: "no vote"}, name="following")
