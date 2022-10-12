@@ -21,38 +21,23 @@ def create_teams():
     redTeam_graph.add_node(26)
     blueTeam_graph = nx.Graph()
     blueTeam_graph.add_node(27)
-    # greyTeam_good_graph = nx.Graph()
-    # greyTeam_bad_graph = nx.Graph()
-
     greyTeam_graph = nx.Graph()
-    # greyTeam_good_graph.add_nodes_from([29, 30, 32, 34, 36])
-    # greyTeam_bad_graph.add_nodes_from([28, 31, 33, 35, 37])
     greyTeam_graph.add_nodes_from([28, 29, 30, 31, 32, 33, 34, 35, 36, 37])
     nx.set_node_attributes(greyTeam_graph, {"grey"}, name="team")
 
     for node in greyTeam_graph.nodes():
         if node == 29 or node == 30 or node == 32 or node == 34 or node == 36:
-            # print("good")
             nx.set_node_attributes(greyTeam_graph, {node: "good"}, name="allegiance")
         elif node == 28 or node == 31 or node == 33 or node == 35 or node == 37:
-            # print("bad")
             nx.set_node_attributes(greyTeam_graph, {node: "bad"}, name="allegiance")
-    # set the random opinions and uncertainties of green agents
-    # player_interval = float(input('select a starting interval for the green team: '))
-    # if player_interval > -1.0 and player_interval < 1.0:
-    #     for node in greenTeam_graph.nodes():
-    #         # 0 indicates the agent does not want to vote
-    #         random_opinion = random.choice([0, 1])
-    #         random_interval = round(random.uniform(-1.0, 1.0), 1)
-    #         nx.set_node_attributes(greenTeam_graph, {node: random_opinion}, name="opinion")
-    #         # nx.set_node_attributes(greenTeam_graph, {node: random_interval}, name="uncertainty")
-    #         nx.set_node_attributes(greenTeam_graph, {node: player_interval}, name="uncertainty")
+
+    # player_interval = get_interval()
+    interval_test = pd.Interval(-1.0, 1.0)
 
     for node in greenTeam_graph.nodes():
-        # 0 indicates the agent does not want to vote
         random_opinion = random.choice([0, 1])
-        random_interval = round(random.uniform(-1.0, 1.0), 1)
-        # random_interval = round(random.uniform(0.0, 1.0), 1)
+        random_interval = round(random.uniform(interval_test.left, interval_test.right), 1)
+        
         nx.set_node_attributes(greenTeam_graph, {node: random_opinion}, name="opinion")
         nx.set_node_attributes(greenTeam_graph, {node: random_interval}, name="uncertainty")
         nx.set_node_attributes(greenTeam_graph, {node: "no vote"}, name="following")
@@ -74,3 +59,9 @@ def create_teams():
     game_network = nx.compose(greenTeam_graph, temp2)
 
     return game_network, greenTeam_graph, redTeam_graph, blueTeam_graph, greyTeam_graph
+
+def get_interval():
+    print("default uncertainty interval is (-1, 1)")
+    player_interval = input('input an uncertainty interval for the game: ')
+
+    return player_interval
