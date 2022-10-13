@@ -82,11 +82,13 @@ def start_game(network, green_team, red_team, blue_team, grey_team):
                 print("blue team has another round, thanks to grey team")
                 grey_good_round(green_team, random_choice)
         elif current_energy >= 100 and lifeline == True:
-            game_result(green, rounds)
+            # game_result(green, rounds)
             clear_energy()
             network = get_network()
             # visualize_game(network)
-            break
+
+            red_wins, blue_wins, ties, game_rounds = get_result(green, rounds)
+            return red_wins, blue_wins, ties, game_rounds
 
 def green_round(green_team):
     for node in green_team.nodes():
@@ -634,5 +636,23 @@ def game_result(green_team, game_rounds):
         total = red + blue
         print("total voters: ", total)
 
-def simulation1():
-    print("simulation 1")
+def get_result(green_team, game_rounds):
+    red = 0
+    blue = 0
+    red_wins = 0
+    blue_wins = 0
+    ties = 0
+    for node in green_team.nodes():
+        if "following" in green_team.nodes[node]:
+            if green_team.nodes[node]["following"] == "red":
+                red = red + 1
+            elif green_team.nodes[node]["following"] == "blue":
+                blue = blue + 1
+    if red > blue:
+        red_wins = red_wins + 1
+    elif blue > red:
+        blue_wins = blue + 1
+    elif red == blue:
+        ties = ties + 1
+
+    return red_wins, blue_wins, ties, game_rounds
