@@ -134,11 +134,12 @@ def red_round(green_team, red_team):
     red_msgs = ["lvl1 potency", "lvl2 potency", "lvl3 potency", "lvl4 potency", "lvl5 potency"]
     red_skip = False
     network = get_network()
+    random_msg = random.choice(red_msgs)
     for node in green_team.nodes():
         # player_message = red_message_selection(red_msgs)
 
         # randomly pick a potent message - TESTING
-        random_msg = random.choice(red_msgs)
+        # random_msg = random.choice(red_msgs)
         # current_redmsg = red_msgs[4]
         a1_opinion, a1_uncertainty, red_opinion, red_uncertainty = red_interaction(green_team, node)
 
@@ -320,10 +321,10 @@ def blue_round(green_team, blue_team, grey_team, energy):
     blue_msgs = ["lvl1 potency", "lvl2 potency", "lvl3 potency", "lvl4 potency", "lvl5 potency"]
     # if blue team uses all of its energy, the game ends
     network = get_network()
-
+    random_msg = random.choice(blue_msgs)
     for node in green_team.nodes():
         # randomly pick a potent message - TESTING
-        random_msg = random.choice(blue_msgs)
+        # random_msg = random.choice(blue_msgs)
         a1_opinion, a1_uncertainty, blue_opinion, blue_uncertainty = blue_interaction(green_team, node)
 
         nx.set_node_attributes(green_team, {node: a1_opinion}, name="opinion")
@@ -402,9 +403,9 @@ def blue_round(green_team, blue_team, grey_team, energy):
 def grey_good_round(green_team, grey_node):
     network = get_network()
     blue_msgs = ["lvl1 potency", "lvl2 potency", "lvl3 potency", "lvl4 potency", "lvl5 potency"]
+    random_msg = random.choice(blue_msgs)
     for node in green_team.nodes():
         # randomly pick a potent message - TESTING
-        random_msg = random.choice(blue_msgs)
 
         a1_opinion, a1_uncertainty, blue_opinion, blue_uncertainty = blue_interaction(green_team, node)
 
@@ -474,11 +475,11 @@ def grey_good_round(green_team, grey_node):
 def grey_bad_round(green_team, grey_node):
     network = get_network()
     red_msgs = ["lvl1 potency", "lvl2 potency", "lvl3 potency", "lvl4 potency", "lvl5 potency"]
+    random_msg = random.choice(red_msgs)
     for node in green_team.nodes():
         # player_message = red_message_selection(red_msgs)
 
         # randomly pick a potent message - TESTING
-        random_msg = random.choice(red_msgs)
 
         a1_opinion, a1_uncertainty, red_opinion, red_uncertainty = red_interaction(green_team, node)
 
@@ -632,3 +633,6 @@ def game_result(green_team, game_rounds):
         print("blue followers: ", blue)
         total = red + blue
         print("total voters: ", total)
+
+def simulation1():
+    print("simulation 1")
