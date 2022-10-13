@@ -1,9 +1,11 @@
 import networkx as nx
+import pandas as pd
 
 green_team = nx.Graph()
 energy = 0
 lifeline = False
 game_network = nx.Graph()
+uncertainty_interval = pd.Interval(-1.0, 1.0)
 # save the current green team
 def save_green(green):
     global green_team
@@ -36,3 +38,10 @@ def save_network(network):
 
 def get_network():
     return game_network
+
+def save_interval(interval):
+    global uncertainty_interval
+    uncertainty_interval = interval
+
+def get_interval():
+    return uncertainty_interval

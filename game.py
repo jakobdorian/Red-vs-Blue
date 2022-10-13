@@ -2,23 +2,22 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import random
 from random import choice, sample
-from helper import save_green, get_green, save_energy, get_energy, clear_energy, save_lifeline, get_lifeline, save_network, get_network
+from helper import save_green, get_green, save_energy, get_energy, clear_energy, save_lifeline, get_lifeline, save_network, get_network, save_interval, get_interval
 import pandas as pd
 import numpy as np
 import time
 
 RED_NODE = 26
 BLUE_NODE = 27
-def start_game(network, green_team, red_team, blue_team, grey_team):
+def start_game(network, green_team, red_team, blue_team, grey_team, uncertainty_interval):
     print("game is starting...")
     lifeline = False
     clear_energy()
-    blue_max = 20
-    energy = 0
 
     save_green(green_team)
     save_lifeline(lifeline)
     save_network(network)
+    save_interval(uncertainty_interval)
     rounds = 0
     # check_voters()
     # visualize_game(network)
@@ -82,13 +81,18 @@ def start_game(network, green_team, red_team, blue_team, grey_team):
                 print("blue team has another round, thanks to grey team")
                 grey_good_round(green_team, random_choice)
         elif current_energy >= 100 and lifeline == True:
-            # game_result(green, rounds)
+            game_result(green, rounds)
             clear_energy()
-            network = get_network()
+            quit()
+            # red_wins, blue_wins, ties, game_rounds = get_result(green, rounds)
+            # return red_wins, blue_wins, ties, game_rounds
+            # break
+
+            # network = get_network()
             # visualize_game(network)
 
-            red_wins, blue_wins, ties, game_rounds = get_result(green, rounds)
-            return red_wins, blue_wins, ties, game_rounds
+            # red_wins, blue_wins, ties, game_rounds = get_result(green, rounds)
+            # return red_wins, blue_wins, ties, game_rounds
 
 def green_round(green_team):
     for node in green_team.nodes():
@@ -132,18 +136,20 @@ def red_message_selection(red_msgs):
         print("please pick a number between 1-5: ")
     return player_message
 def red_round(green_team, red_team):
-    current_interaction = nx.compose(green_team, red_team)
     red_msgs = ["lvl1 potency", "lvl2 potency", "lvl3 potency", "lvl4 potency", "lvl5 potency"]
     red_skip = False
     network = get_network()
+    # randomly pick a potent message - TESTING
     random_msg = random.choice(red_msgs)
+    interval = get_interval()
+    # random_msg = red_msgs[4]
+    # player_message = red_message_selection(red_msgs)
     for node in green_team.nodes():
-        # player_message = red_message_selection(red_msgs)
-
         # randomly pick a potent message - TESTING
         # random_msg = random.choice(red_msgs)
         # current_redmsg = red_msgs[4]
         a1_opinion, a1_uncertainty, red_opinion, red_uncertainty = red_interaction(green_team, node)
+
 
         # update new values
         nx.set_node_attributes(green_team, {node: a1_opinion}, name="opinion")
@@ -152,7 +158,7 @@ def red_round(green_team, red_team):
         # node wants to vote
         if green_team.nodes[node]["opinion"] == 1:
             # node is certain
-            if green_team.nodes[node]["uncertainty"] < 0:
+            if green_team.nodes[node]["uncertainty"] < interval.mid:
                 if random_msg == "lvl1 potency":
                     chance = random.choice([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
                     if chance == 1:
@@ -168,20 +174,35 @@ def red_round(green_team, red_team):
                     if chance == 1:
                         nx.set_node_attributes(green_team, {node: "red"}, name="following")
                         network.add_edge(node, RED_NODE)
+                    elif chance == 0:
+                        nx.set_node_attributes(green_team, {node: "blue"}, name="following")
+                        network.add_edge(node, RED_NODE)
                 elif random_msg == "lvl4 potency":
+                    # red team loses followers
                     chance = random.choice([0, 1, 2])
                     if chance == 1:
                         nx.set_node_attributes(green_team, {node: "red"}, name="following")
                         nx.set_node_attributes(green_team, {node: 0}, name="opinion")
                         network.add_edge(node, RED_NODE)
+                    # red team loses followers
+                    elif chance == 0:
+                        nx.set_node_attributes(green_team, {node: "blue"}, name="following")
+                        nx.set_node_attributes(green_team, {node: 0}, name="opinion")
+                        network.add_edge(node, RED_NODE)
+                        # print("red team has lost ", node, " as a follower!")
                 elif random_msg == "lvl5 potency":
-                    chance = random.choice([0, 1, 2])
+                    chance = random.choice([0, 1])
                     if chance == 1:
                         nx.set_node_attributes(green_team, {node: "red"}, name="following")
                         nx.set_node_attributes(green_team, {node: 0}, name="opinion")
                         network.add_edge(node, RED_NODE)
+                    elif chance == 0:
+                        nx.set_node_attributes(green_team, {node: "blue"}, name="following")
+                        nx.set_node_attributes(green_team, {node: 0}, name="opinion")
+                        network.add_edge(node, BLUE_NODE)
+                        # print("red team has lost ", node, " as a follower!")
             # node is uncertain
-            elif green_team.nodes[node]["uncertainty"] > 0:
+            elif green_team.nodes[node]["uncertainty"] > interval.mid:
                 if random_msg == "lvl1 potency":
                     chance = random.choice([0, 1, 2, 3])
                     if chance == 1:
@@ -218,7 +239,8 @@ def red_interaction(green_team, node1):
     # TESTING - random choices
     # LET RED AGENT DECIDE THESE VALUES
     red_starting_opinion = random.choice([0, 1])
-    red_starting_uncertainty = round(random.uniform(-1.0, 1.0), 1)
+    # red_starting_uncertainty = round(random.uniform(-1.0, 1.0), 1)
+    red_starting_uncertainty = round(random.uniform(0.0, 1.0), 1)
 
     agent1_updated_opinion, agent1_updated_uncertainty, red_updated_opinion, red_updated_uncertainty = update_rules(agent1_starting_opinion, agent1_starting_uncertainty, red_starting_opinion, red_starting_uncertainty)
 
@@ -251,9 +273,10 @@ def green_interaction(green_team, node1, node2):
 
 # returns updated values for the opinion and uncertainty after the interaction of two nodes/agents
 def update_rules(agent1_starting_opinion, agent1_starting_uncertainty, agent2_starting_opinion, agent2_starting_uncertainty):
+    interval = get_interval()
     # both agents want to vote and have a high uncertainty
-    if agent1_starting_opinion == 1 and agent1_starting_uncertainty > 0.5 and agent2_starting_opinion == 1 and agent2_starting_uncertainty > 0.5:
-        print("1. both agents want to vote and have a highly uncertain. they will change their votes")
+    if agent1_starting_opinion == 1 and agent1_starting_uncertainty > interval.mid and agent2_starting_opinion == 1 and agent2_starting_uncertainty > interval.mid:
+        # print("1. both agents want to vote and have a highly uncertain. they will change their votes")
         agent1_updated_opinion = agent1_starting_opinion
         agent1_updated_uncertainty = agent1_starting_uncertainty - 0.1
 
@@ -262,8 +285,8 @@ def update_rules(agent1_starting_opinion, agent1_starting_uncertainty, agent2_st
 
         return agent1_updated_opinion, agent1_updated_uncertainty, agent2_updated_opinion, agent2_updated_uncertainty
     # both agents don't want to vote and have a low uncertainty
-    elif agent1_starting_opinion == 0 and agent1_starting_uncertainty < 0.5 and agent2_starting_opinion == 0 and agent2_starting_uncertainty < 0.5:
-        print("2. both agents do not want to vote and are certain of their current vote")
+    elif agent1_starting_opinion == 0 and agent1_starting_uncertainty < interval.mid and agent2_starting_opinion == 0 and agent2_starting_uncertainty < interval.mid:
+        # print("2. both agents do not want to vote and are certain of their current vote")
         agent1_updated_opinion = agent1_starting_opinion
         agent1_updated_uncertainty = agent1_starting_uncertainty + 0.1
 
@@ -274,9 +297,9 @@ def update_rules(agent1_starting_opinion, agent1_starting_uncertainty, agent2_st
     # agent 1 wants to vote but agent 2 does not, if the agent1's uncertainty is greater than agent2's uncertainty,
     # then update the uncertainty
     # else, just update the opinion
-    elif agent1_starting_opinion == 1 and agent1_starting_uncertainty > 0.5 and agent2_starting_opinion == 0 and agent2_starting_uncertainty > 0.5:
+    elif agent1_starting_opinion == 1 and agent1_starting_uncertainty > interval.mid and agent2_starting_opinion == 0 and agent2_starting_uncertainty > interval.mid:
         if agent1_starting_uncertainty > agent2_starting_uncertainty:
-            print("3. agent1 convinces agent2 to vote")
+            # print("3. agent1 convinces agent2 to vote")
             agent1_updated_opinion = agent1_starting_opinion
             agent1_updated_uncertainty = agent1_starting_uncertainty + 0.1
 
@@ -286,7 +309,7 @@ def update_rules(agent1_starting_opinion, agent1_starting_uncertainty, agent2_st
             return agent1_updated_opinion, agent1_updated_uncertainty, agent2_updated_opinion, agent2_updated_uncertainty
 
         else:
-            print("3. true")
+            # print("3. true")
             agent1_updated_opinion = agent1_starting_opinion
             agent1_updated_uncertainty = agent1_starting_uncertainty
 
@@ -294,8 +317,8 @@ def update_rules(agent1_starting_opinion, agent1_starting_uncertainty, agent2_st
             agent2_updated_uncertainty = agent2_starting_uncertainty
 
             return agent1_updated_opinion, agent1_updated_uncertainty, agent2_updated_opinion, agent2_updated_uncertainty
-    elif agent1_starting_opinion == 0 and agent1_starting_uncertainty < 0.5 and agent2_starting_opinion == 1 and agent2_starting_uncertainty > 0.5:
-        print("4. agent2 convinces agent1 to vote")
+    elif agent1_starting_opinion == 0 and agent1_starting_uncertainty < interval.mid and agent2_starting_opinion == 1 and agent2_starting_uncertainty > interval.mid:
+        # print("4. agent2 convinces agent1 to vote")
         agent1_updated_opinion = 1
         agent1_updated_uncertainty = agent1_starting_uncertainty + 0.2
 
@@ -304,8 +327,8 @@ def update_rules(agent1_starting_opinion, agent1_starting_uncertainty, agent2_st
 
         return agent1_updated_opinion, agent1_updated_uncertainty, agent2_updated_opinion, agent2_updated_uncertainty
     # both agents are highly uncertain and now want to vote
-    elif agent1_starting_opinion == 0 and agent1_starting_uncertainty > 0.5 and agent2_starting_opinion == 0 and agent2_starting_uncertainty > 0.5:
-        print("5. both agents are highly uncertain and now want to vote")
+    elif agent1_starting_opinion == 0 and agent1_starting_uncertainty > interval.mid and agent2_starting_opinion == 0 and agent2_starting_uncertainty > interval.mid:
+        # print("5. both agents are highly uncertain and now want to vote")
         agent1_updated_opinion = 1
         agent1_updated_uncertainty = agent1_starting_uncertainty - 0.2
 
@@ -323,6 +346,7 @@ def blue_round(green_team, blue_team, grey_team, energy):
     blue_msgs = ["lvl1 potency", "lvl2 potency", "lvl3 potency", "lvl4 potency", "lvl5 potency"]
     # if blue team uses all of its energy, the game ends
     network = get_network()
+    interval = get_interval()
     random_msg = random.choice(blue_msgs)
     for node in green_team.nodes():
         # randomly pick a potent message - TESTING
@@ -335,7 +359,7 @@ def blue_round(green_team, blue_team, grey_team, energy):
         # node wants to vote
         if green_team.nodes[node]["opinion"] == 1:
             # node is certain
-            if green_team.nodes[node]["uncertainty"] < 0:
+            if green_team.nodes[node]["uncertainty"] < interval.mid:
                 energy = energy + 2
                 if random_msg == "lvl1 potency":
                     chance = random.choice([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
@@ -369,7 +393,7 @@ def blue_round(green_team, blue_team, grey_team, energy):
                         network.add_edge(node, BLUE_NODE)
                         energy = energy + 4
             # node is uncertain
-            elif green_team.nodes[node]["uncertainty"] > 0:
+            elif green_team.nodes[node]["uncertainty"] > interval.mid:
                 energy = energy + 1
                 if random_msg == "lvl1 potency":
                     chance = random.choice([0, 1, 2, 3])
@@ -404,6 +428,7 @@ def blue_round(green_team, blue_team, grey_team, energy):
 # grey agent is working for the team
 def grey_good_round(green_team, grey_node):
     network = get_network()
+    interval = get_interval()
     blue_msgs = ["lvl1 potency", "lvl2 potency", "lvl3 potency", "lvl4 potency", "lvl5 potency"]
     random_msg = random.choice(blue_msgs)
     for node in green_team.nodes():
@@ -417,7 +442,7 @@ def grey_good_round(green_team, grey_node):
         # node wants to vote
         if green_team.nodes[node]["opinion"] == 1:
             # node is certain
-            if green_team.nodes[node]["uncertainty"] < 0:
+            if green_team.nodes[node]["uncertainty"] < interval.mid:
                 if random_msg == "lvl1 potency":
                     chance = random.choice([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
                     if chance == 1:
@@ -446,7 +471,7 @@ def grey_good_round(green_team, grey_node):
                         nx.set_node_attributes(green_team, {node: 0}, name="opinion")
                         network.add_edge(node, grey_node)
             # node is uncertain
-            elif green_team.nodes[node]["uncertainty"] > 0:
+            elif green_team.nodes[node]["uncertainty"] > interval.mid:
                 if random_msg == "lvl1 potency":
                     chance = random.choice([0, 1, 2, 3])
                     if chance == 1:
@@ -476,6 +501,7 @@ def grey_good_round(green_team, grey_node):
 # grey agent is working for the red team
 def grey_bad_round(green_team, grey_node):
     network = get_network()
+    interval = get_interval()
     red_msgs = ["lvl1 potency", "lvl2 potency", "lvl3 potency", "lvl4 potency", "lvl5 potency"]
     random_msg = random.choice(red_msgs)
     for node in green_team.nodes():
@@ -492,7 +518,7 @@ def grey_bad_round(green_team, grey_node):
         # node wants to vote
         if green_team.nodes[node]["opinion"] == 1:
             # node is certain
-            if green_team.nodes[node]["uncertainty"] < 0:
+            if green_team.nodes[node]["uncertainty"] < interval.mid:
                 if random_msg == "lvl1 potency":
                     chance = random.choice([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
                     if chance == 1:
@@ -521,7 +547,7 @@ def grey_bad_round(green_team, grey_node):
                         nx.set_node_attributes(green_team, {node: 0}, name="opinion")
                         network.add_edge(node, grey_node)
             # node is uncertain
-            elif green_team.nodes[node]["uncertainty"] > 0:
+            elif green_team.nodes[node]["uncertainty"] > interval.mid:
                 if random_msg == "lvl1 potency":
                     chance = random.choice([0, 1, 2, 3])
                     if chance == 1:
@@ -618,18 +644,21 @@ def game_result(green_team, game_rounds):
                 blue = blue + 1
     print("election has ended after", game_rounds, "rounds of voting!")
     if red > blue:
+        print("\n")
         print("red team wins!")
         print("red followers: ", red)
         print("blue followers: ", blue)
         total = red + blue
         print("total voters: ", total)
     elif blue > red:
+        print("\n")
         print("blue team wins!")
         print("red followers: ", red)
         print("blue followers: ", blue)
         total = red + blue
         print("total voters: ", total)
     elif red == blue:
+        print("\n")
         print("it's a tie!")
         print("red followers: ", red)
         print("blue followers: ", blue)
@@ -651,7 +680,7 @@ def get_result(green_team, game_rounds):
     if red > blue:
         red_wins = red_wins + 1
     elif blue > red:
-        blue_wins = blue + 1
+        blue_wins = blue_wins + 1
     elif red == blue:
         ties = ties + 1
 

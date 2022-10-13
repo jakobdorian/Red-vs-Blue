@@ -43,8 +43,8 @@ def create_teams():
         nx.set_node_attributes(greenTeam_graph, {node: "no vote"}, name="following")
 
     # SET ATTRIBUTES TO EACH NODE
-    nx.set_node_attributes(greenTeam_graph, "none", name="following")
-
+    nx.set_node_attributes(greenTeam_graph, "red", name="following")
+    # nx.set_node_attributes(greenTeam_graph, "none", name="following")
     nx.set_node_attributes(greenTeam_graph, "green", name="team")
     nx.set_node_attributes(redTeam_graph, "red", name="team")
     nx.set_node_attributes(greyTeam_graph, "grey", name="team")
@@ -58,7 +58,7 @@ def create_teams():
     temp2 = nx.compose(temp, greyTeam_graph)
     game_network = nx.compose(greenTeam_graph, temp2)
 
-    return game_network, greenTeam_graph, redTeam_graph, blueTeam_graph, greyTeam_graph
+    return game_network, greenTeam_graph, redTeam_graph, blueTeam_graph, greyTeam_graph, interval_test
 
 def get_interval():
     print("default uncertainty interval is (-1, 1)")
