@@ -16,7 +16,11 @@ def start_game(network, green_team, red_team, blue_team, grey_team, uncertainty_
     lifeline = False
     clear_energy()
 
+    start = time.time()
     save_green(green_team)
+    end = time.time()
+    print(end - start)
+
     save_lifeline(lifeline)
     save_network(network)
     save_interval(uncertainty_interval)
@@ -160,7 +164,6 @@ def red_message_selection(red_msgs):
         print("please pick a number between 1-5: ")
     return player_message
 def red_round(green_team, red_msg, minimax_sim):
-    # red_msgs = ["lvl1 potency", "lvl2 potency", "lvl3 potency", "lvl4 potency", "lvl5 potency"]
     red_skip = False
     network = get_network()
     # randomly pick a potent message - TESTING
@@ -170,7 +173,6 @@ def red_round(green_team, red_msg, minimax_sim):
     if not minimax_sim:
         chosen_msg = minimax2(green_team, True, -float("inf"), float("inf"), 10)
         # red_msg = minimax(green_team, True, -float("inf"), float("inf"), 10)
-        print(chosen_msg)
         red_msg = chosen_msg
 
     # red_msg = chosen_msg
@@ -180,6 +182,8 @@ def red_round(green_team, red_msg, minimax_sim):
     # random_msg = red_msgs[4]
     # player_message = red_message_selection(red_msgs)
     for node in green_team.nodes():
+        if not minimax_sim:
+            print("red agent -> ", red_msg, "to green node #", node)
         # randomly pick a potent message - TESTING
         # random_msg = random.choice(red_msgs)
         # current_redmsg = red_msgs[4]
@@ -196,29 +200,26 @@ def red_round(green_team, red_msg, minimax_sim):
                 if red_msg == "lvl1 potency":
                     chance = random.choice([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
                     if chance == 1:
-                            if green_team.nodes[node]["following"] != "blue":
-                                nx.set_node_attributes(green_team, {node: "red"}, name="following")
-                                network.add_edge(node, RED_NODE)
-                                followers = followers + 1
+                            nx.set_node_attributes(green_team, {node: "red"}, name="following")
+                            network.add_edge(node, RED_NODE)
+                            followers = followers + 1
                 elif red_msg == "lvl2 potency":
                     chance = random.choice([0, 1, 2, 3, 4, 5, 6, 7, 8])
                     if chance == 1:
-                        if green_team.nodes[node]["following"] != "blue":
-                            nx.set_node_attributes(green_team, {node: "red"}, name="following")
-                            network.add_edge(node, RED_NODE)
-                            followers = followers + 1
+                        nx.set_node_attributes(green_team, {node: "red"}, name="following")
+                        network.add_edge(node, RED_NODE)
+                        followers = followers + 1
                 elif red_msg == "lvl3 potency":
                     chance = random.choice([0, 1, 2, 3, 4, 5])
                     if chance == 1:
-                        if green_team.nodes[node]["following"] != "blue":
-                            nx.set_node_attributes(green_team, {node: "red"}, name="following")
-                            network.add_edge(node, RED_NODE)
-                            followers = followers + 1
+                        nx.set_node_attributes(green_team, {node: "red"}, name="following")
+                        network.add_edge(node, RED_NODE)
+                        followers = followers + 1
                     elif chance == 0:
                         nx.set_node_attributes(green_team, {node: "blue"}, name="following")
                         network.add_edge(node, RED_NODE)
                         followers = followers + 1
-                elif red_msg== "lvl4 potency":
+                elif red_msg == "lvl4 potency":
                     # red team loses followers
                     chance = random.choice([0, 1, 2])
                     if chance == 1:
@@ -417,6 +418,8 @@ def blue_round(green_team, blue_msg, minimax_sim):
 
 
     for node in green_team.nodes():
+        if not minimax_sim:
+            print("blue agent -> ", blue_msg, "to green node #", node)
         # randomly pick a potent message - TESTING
         # random_msg = random.choice(blue_msgs)
         a1_opinion, a1_uncertainty, blue_opinion, blue_uncertainty = blue_interaction(green_team, node)
@@ -463,7 +466,7 @@ def blue_round(green_team, blue_msg, minimax_sim):
                         nx.set_node_attributes(green_team, {node: "blue"}, name="following")
                         nx.set_node_attributes(green_team, {node: 0}, name="opinion")
                         network.add_edge(node, BLUE_NODE)
-                        energy = energy + 4
+                        energy = energy + 3
                         round_followers = round_followers + 1
             # node is uncertain
             elif green_team.nodes[node]["uncertainty"] > interval.mid:
@@ -818,6 +821,7 @@ def minimax(network, maximizing, alpha, beta, depth):
             temp_network = copy.deepcopy(network)
             # temp_network = network.copy()
             # huer = red_round(temp_network, messages, minimax_sim)
+            red_round(temp_network, msg, minimax_sim)
             huer = minimax(temp_network, False, -float("Inf"), float("Inf"), depth-1)
             print(huer)
             if huer > optimal:
@@ -827,21 +831,21 @@ def minimax(network, maximizing, alpha, beta, depth):
                 break
         return best_message
     # blue minimax agent
-    # else:
-    #     optimal = float("Inf")
-    #     messages = get_blue_messages()
-    #     best_message = messages[0]
-    #     for msg in messages:
-    #         temp_network = copy.deepcopy(network)
-    #         # temp_network = network.copy()
-    #         blue_round(temp_network, messages, minimax_sim)
-    #         huer = minimax(temp_network, True, -float("Inf"), float("Inf"), depth-1)
-    #         if huer > optimal:
-    #             best_message = msg
-    #         beta = min(beta, optimal)
-    #         if alpha >= beta:
-    #             break
-    #     return best_message
+    else:
+        optimal = float("Inf")
+        messages = get_blue_messages()
+        best_message = messages[0]
+        for msg in messages:
+            temp_network = copy.deepcopy(network)
+            # temp_network = network.copy()
+            blue_round(temp_network, msg, minimax_sim)
+            huer = minimax(temp_network, True, -float("Inf"), float("Inf"), depth-1)
+            if huer > optimal:
+                best_message = msg
+            beta = min(beta, optimal)
+            if alpha >= beta:
+                break
+        return best_message
 
 
 def minimax2(network, maximizing, alpha, beta, depth):
@@ -852,21 +856,20 @@ def minimax2(network, maximizing, alpha, beta, depth):
     if depth == 0:
         return game_result2(network)
     i = 0
-    # red agent
+    # red team
     if maximizing:
         best = red_messages[0]
         optimal = -float("Inf")
         for message in red_messages:
             i = i + 1
             most_followers = red_round(temp_network, message, minimax_sim)
-            # print(i, ":", message)
-            # print("huer:", huer)
             if most_followers > optimal:
                 best = message
             alpha = max(alpha, optimal)
             if alpha >= beta:
                 break
         return best
+    # blue team
     else:
         best = blue_messages[0]
         optimal = float("Inf")
