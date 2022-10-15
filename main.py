@@ -1,5 +1,5 @@
 from teams import create_teams
-from game import start_game
+from election import start_game
 
 # runs simulation with random choices
 def simulation_random():
@@ -26,7 +26,7 @@ def simulation1():
       game_rounds = game_rounds + game_round
 
    print("\n")
-   print("after", i,"simulations:")
+   print("after", i, "simulations:")
    print("total red wins: ", red_wins)
    print("total blue wins: ", blue_wins)
    print("total ties: ", ties)
