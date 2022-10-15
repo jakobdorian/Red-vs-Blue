@@ -45,3 +45,11 @@ def save_interval(interval):
 
 def get_interval():
     return uncertainty_interval
+
+def get_red_messages():
+    red_msgs = ["lvl1 potency", "lvl2 potency", "lvl3 potency", "lvl4 potency", "lvl5 potency"]
+    return red_msgs
+
+def get_blue_messages():
+    blue_msgs = ["lvl1 potency", "lvl2 potency", "lvl3 potency", "lvl4 potency", "lvl5 potency"]
+    return blue_msgs

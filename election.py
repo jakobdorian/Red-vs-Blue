@@ -1,14 +1,17 @@
+import copy
+
 import networkx as nx
 import matplotlib.pyplot as plt
 import random
 from random import choice, sample
-from helper import save_green, get_green, save_energy, get_energy, clear_energy, save_lifeline, get_lifeline, save_network, get_network, save_interval, get_interval
+from helper import save_green, get_green, save_energy, get_energy, clear_energy, save_lifeline, get_lifeline, save_network, get_network, save_interval, get_interval, get_red_messages, get_blue_messages
 import pandas as pd
 import numpy as np
 import time
 
 RED_NODE = 26
 BLUE_NODE = 27
+minimax_sim = False
 def start_game(network, green_team, red_team, blue_team, grey_team, uncertainty_interval):
     print("game is starting...")
     lifeline = False
@@ -19,6 +22,9 @@ def start_game(network, green_team, red_team, blue_team, grey_team, uncertainty_
     save_network(network)
     save_interval(uncertainty_interval)
     rounds = 0
+
+    red_msgs = ["lvl1 potency", "lvl2 potency", "lvl3 potency", "lvl4 potency", "lvl5 potency"]
+    blue_msgs = ["lvl1 potency", "lvl2 potency", "lvl3 potency", "lvl4 potency", "lvl5 potency"]
     # check_voters()
     # visualize_game(network)
 
@@ -37,15 +43,17 @@ def start_game(network, green_team, red_team, blue_team, grey_team, uncertainty_
 
         # round where the red agent interacts with all members in green team, potentially affecting their opinions
         #
-        red_skip = red_round(green, red_team)
+        # red_skip = red_round(green, red_team)
+
+        red_round(green, red_msgs, minimax_sim)
         rounds = rounds + 1
 
-        if red_skip:
-            print("red skip")
+        # if red_skip:
+        #     print("red skip")
 
         green = get_green()
         blue_energy = get_energy()
-        print(blue_energy)
+        # print(blue_energy)
 
         # round where the blue agent interacts with all members of the green team, potentially affecting their opinions
         # the goal of the blue agent is to convince those who are following the red team to follow them instead
@@ -54,7 +62,8 @@ def start_game(network, green_team, red_team, blue_team, grey_team, uncertainty_
         # the blue agent can either lose energy or none at all during a round
         # if the blue agent does run out of energy, they can introduce a grey agent (blue round with no energy cost)
         # however there may be a chance that the grey agent is a spy, which gives the red agent a free round during blue teams round
-        blue_round(green, blue_team, grey_team, blue_energy)
+        # blue_round(green, blue_team, grey_team, blue_energy)
+        blue_round(green, blue_msgs, blue_energy, minimax_sim)
         rounds = rounds + 1
 
         current_energy = get_energy()
@@ -97,17 +106,33 @@ def start_game(network, green_team, red_team, blue_team, grey_team, uncertainty_
 def green_round(green_team):
     for node in green_team.nodes():
         temp = list(green_team.neighbors(node))
-        for x in range(len(temp)):
-            # green_interaction(green_team, node, temp[x])
-            agent1_updated_opinion, agent1_updated_uncertainty, agent2_updated_opinion, agent2_updated_uncertainty = green_interaction(green_team, node, temp[x])
-            # print(agent1_updated_opinion, agent1_updated_uncertainty, agent2_updated_opinion, agent2_updated_uncertainty)
+        # randomly pick a neighbour to interact with
+        temp2 = random.choice(temp)
+        # print(temp2)
+        # green_interaction(green_team, node, temp[x])
+        agent1_updated_opinion, agent1_updated_uncertainty, agent2_updated_opinion, agent2_updated_uncertainty = green_interaction(green_team, node, temp2)
+        # print(agent1_updated_opinion, agent1_updated_uncertainty, agent2_updated_opinion, agent2_updated_uncertainty)
+        # print("old values:")
+        # print(green_team.nodes[node]["opinion"])
+        # print(green_team.nodes[node]["uncertainty"])
+        # # print("\n")
+        # print(green_team.nodes[temp2]["opinion"])
+        # print(green_team.nodes[temp2]["uncertainty"])
 
-            # set the updated values to agent1
-            nx.set_node_attributes(green_team, {node: agent1_updated_opinion}, name="opinion")
-            nx.set_node_attributes(green_team, {node: agent1_updated_uncertainty}, name="uncertainty")
-            # set the updated values to agent2
-            nx.set_node_attributes(green_team, {temp[x]: agent2_updated_opinion}, name="opinion")
-            nx.set_node_attributes(green_team, {temp[x]: agent2_updated_uncertainty}, name="uncertainty")
+        # set the updated values to agent1
+        nx.set_node_attributes(green_team, {node: agent1_updated_opinion}, name="opinion")
+        nx.set_node_attributes(green_team, {node: agent1_updated_uncertainty}, name="uncertainty")
+        # set the updated values to agent2
+        nx.set_node_attributes(green_team, {temp2: agent2_updated_opinion}, name="opinion")
+        nx.set_node_attributes(green_team, {temp2: agent2_updated_uncertainty}, name="uncertainty")
+
+        # print("updated values:")
+        # print(green_team.nodes[node]["opinion"])
+        # print(green_team.nodes[node]["uncertainty"])
+        # # print("\n")
+        # print(green_team.nodes[temp2]["opinion"])
+        # print(green_team.nodes[temp2]["uncertainty"])
+
 
             # print("updated values")
     # return green_team
@@ -135,12 +160,12 @@ def red_message_selection(red_msgs):
         print("invalid option!")
         print("please pick a number between 1-5: ")
     return player_message
-def red_round(green_team, red_team):
-    red_msgs = ["lvl1 potency", "lvl2 potency", "lvl3 potency", "lvl4 potency", "lvl5 potency"]
+def red_round(green_team, red_messages, minimax_sim):
+    # red_msgs = ["lvl1 potency", "lvl2 potency", "lvl3 potency", "lvl4 potency", "lvl5 potency"]
     red_skip = False
     network = get_network()
     # randomly pick a potent message - TESTING
-    random_msg = random.choice(red_msgs)
+    random_msg = random.choice(red_messages)
     interval = get_interval()
     # random_msg = red_msgs[4]
     # player_message = red_message_selection(red_msgs)
@@ -237,10 +262,9 @@ def red_round(green_team, red_team):
                     nx.set_node_attributes(green_team, {node: 0}, name="opinion")
                     network.add_edge(node, RED_NODE)
 
-
-    save_green(green_team)
-    save_network(network)
-    return red_skip
+    if not minimax_sim:
+        save_green(green_team)
+        save_network(network)
 
 def red_interaction(green_team, node1):
     agent1_starting_opinion = green_team.nodes[node1]["opinion"]
@@ -350,13 +374,13 @@ def update_rules(agent1_starting_opinion, agent1_starting_uncertainty, agent2_st
         # print("!!!! no conditions met")
         return agent1_starting_opinion, agent1_starting_uncertainty, agent2_starting_opinion, agent2_starting_uncertainty
 
-def blue_round(green_team, blue_team, grey_team, energy):
+def blue_round(green_team, blue_messages, energy, minimax_sim):
     # correction messages
-    blue_msgs = ["lvl1 potency", "lvl2 potency", "lvl3 potency", "lvl4 potency", "lvl5 potency"]
+    # blue_msgs = ["lvl1 potency", "lvl2 potency", "lvl3 potency", "lvl4 potency", "lvl5 potency"]
     # if blue team uses all of its energy, the game ends
     network = get_network()
     interval = get_interval()
-    random_msg = random.choice(blue_msgs)
+    random_msg = random.choice(blue_messages)
     for node in green_team.nodes():
         # randomly pick a potent message - TESTING
         # random_msg = random.choice(blue_msgs)
@@ -430,9 +454,10 @@ def blue_round(green_team, blue_team, grey_team, energy):
                     network.add_edge(node, BLUE_NODE)
                     energy = energy + 2
 
-    save_green(green_team)
-    save_network(network)
-    save_energy(energy)
+    if not minimax_sim:
+        save_green(green_team)
+        save_network(network)
+        save_energy(energy)
 
 # grey agent is working for the team
 def grey_good_round(green_team, grey_node):
@@ -674,6 +699,41 @@ def game_result(green_team, game_rounds):
         total = red + blue
         print("total voters: ", total)
 
+def game_result2(green_team):
+    red = 0
+    blue = 0
+
+    for node in green_team.nodes():
+        # print(green_team.nodes[node]["following"])
+        if "following" in green_team.nodes[node]:
+            if green_team.nodes[node]["following"] == "red":
+                red = red + 1
+            elif green_team.nodes[node]["following"] == "blue":
+                blue = blue + 1
+    # print("election has ended after", game_rounds, "rounds of voting!")
+    if red > blue:
+        print("\n")
+        print("red team wins!")
+        print("red followers: ", red)
+        print("blue followers: ", blue)
+        total = red + blue
+        print("total voters: ", total)
+    elif blue > red:
+        print("\n")
+        print("blue team wins!")
+        print("red followers: ", red)
+        print("blue followers: ", blue)
+        total = red + blue
+        print("total voters: ", total)
+    elif red == blue:
+        print("\n")
+        print("it's a tie!")
+        print("red followers: ", red)
+        print("blue followers: ", blue)
+        total = red + blue
+        print("total voters: ", total)
+
+
 def get_result(green_team, game_rounds):
     red = 0
     blue = 0
@@ -694,3 +754,43 @@ def get_result(green_team, game_rounds):
         ties = ties + 1
 
     return red_wins, blue_wins, ties, game_rounds
+
+# a minimax agent to play the game as the red or blue agent
+def minimax(network, maximizing, alpha, beta, depth):
+    # red_messages = get_red_messages()
+    minimax_sim = True
+    if depth == 0:
+        return game_result2(network)
+    # red minimax agent
+    elif maximizing:
+        optimal = -float("Inf")
+        messages = get_blue_messages()
+        current_messsage = messages[0]
+        for msg in messages:
+            temp_network = copy.deepcopy(network)
+            red_round(temp_network, messages, minimax_sim)
+            huer = minimax(temp_network, False, depth - 1, -float("Inf"), float("Inf"))
+            if huer > optimal:
+                best_message = msg
+            alpha = max(alpha, optimal)
+            if alpha >= beta:
+                break
+        return best_message
+    # blue minimax agent
+    else:
+        optimal = float("Inf")
+        messages = get_blue_messages()
+        current_messsage = messages[0]
+        for msg in messages:
+            temp_network = copy.deepcopy(network)
+            blue_round(temp_network, messages)
+            huer = minimax(temp_network, True, depth - 1, -float("Inf"), float("Inf"))
+            if huer > optimal:
+                best_message = msg
+            beta = min(beta, optimal)
+            if alpha >= beta:
+                break
+        return best_message
+
+
+
