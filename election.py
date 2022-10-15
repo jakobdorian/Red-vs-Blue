@@ -183,7 +183,7 @@ def red_round(green_team, red_msg, minimax_sim):
     # player_message = red_message_selection(red_msgs)
     for node in green_team.nodes():
         if not minimax_sim:
-            print("red agent -> ", red_msg, "to green node #", node)
+            print("red agent -> ", red_msg, "-> green node #", node)
         # randomly pick a potent message - TESTING
         # random_msg = random.choice(red_msgs)
         # current_redmsg = red_msgs[4]
@@ -419,7 +419,7 @@ def blue_round(green_team, blue_msg, minimax_sim):
 
     for node in green_team.nodes():
         if not minimax_sim:
-            print("blue agent -> ", blue_msg, "to green node #", node)
+            print("blue agent -> ", blue_msg, "-> green node #", node)
         # randomly pick a potent message - TESTING
         # random_msg = random.choice(blue_msgs)
         a1_opinion, a1_uncertainty, blue_opinion, blue_uncertainty = blue_interaction(green_team, node)
