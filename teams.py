@@ -32,7 +32,11 @@ def create_teams():
             nx.set_node_attributes(greyTeam_graph, {node: "bad"}, name="allegiance")
 
     # player_interval = get_interval()
+    # broad interval
     interval_test = pd.Interval(-1.0, 1.0)
+
+    # tight interval
+    # interval_test = pd.Interval(-0.1, 0.1)
 
     for node in greenTeam_graph.nodes():
         random_opinion = random.choice([0, 1])
