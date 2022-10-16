@@ -2,7 +2,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import random
 from random import choice, sample
-from helper import save_green, get_green, save_energy, get_energy, clear_energy, save_lifeline, get_lifeline, save_network, get_network, save_interval, get_interval, get_red_messages, get_blue_messages
+from helper import save_green, get_green, save_energy, get_energy, clear_energy, save_lifeline, get_lifeline, save_network, get_network, save_interval, get_interval, get_red_messages, get_blue_messages, get_player, save_player
 import copy
 import pandas as pd
 import numpy as np
@@ -11,10 +11,11 @@ import time
 RED_NODE = 26
 BLUE_NODE = 27
 minimax_sim = False
-def start_election(network, green_team, red_team, blue_team, grey_team, uncertainty_interval):
-    print("election is starting...")
+def start_election(network, green_team, red_team, blue_team, grey_team, uncertainty_interval, player):
+    print("Election is starting...")
     lifeline = False
     clear_energy()
+    save_player(player)
 
     save_green(green_team)
 
@@ -120,40 +121,128 @@ def green_round(green_team):
     # return green_team
     save_green(green_team)
 
-def red_message_selection(red_msgs):
-    print("1. lvl1 potency msg")
-    print("2. lvl2 potency msg")
-    print("3. lvl3 potency msg")
-    print("4. lvl4 potency msg")
-    print("5. lvl5 potency msg")
-    player_selection = input('Pick a message to send to the green agent: ')
+def red_message_selection():
+    red_messages = get_red_messages()
+    while True:
+        try:
+            print("1. lvl1 potency msg")
+            print("2. lvl2 potency msg")
+            print("3. lvl3 potency msg")
+            print("4. lvl4 potency msg")
+            print("5. lvl5 potency msg")
+            selection = int(input("Pick a message to send to the green node: "))
+        except ValueError:
+            print("Invalid input!")
+        if selection < 1 or selection > 5:
+            print("Invalid option!")
+        else:
+            break
+    if selection == 1:
+        player_message = red_messages[0]
+    elif selection == 2:
+        player_message = red_messages[1]
+    elif selection == 3:
+        player_message = red_messages[2]
+    elif selection == 4:
+        player_message = red_messages[3]
+    elif selection == 5:
+        player_message = red_messages[4]
 
-    if player_selection == "1":
-        player_message = red_msgs[0]
-    elif player_selection == "2":
-        player_message = red_msgs[1]
-    elif player_selection == "3":
-        player_message = red_msgs[2]
-    elif player_selection == "4":
-        player_message = red_msgs[3]
-    elif player_selection == "5":
-        player_message = red_msgs[4]
-    else:
-        print("invalid option!")
-        print("please pick a number between 1-5: ")
     return player_message
+
+def red_uncertainty_selection():
+    interval = get_interval()
+    while True:
+        try:
+            print("Please input an uncertainty value based on: ", interval)
+            player_uncertainty = float(input("Please input an uncertainty value based on: "))
+        except ValueError:
+            print("Invalid input!")
+        if player_uncertainty < interval.left or player_uncertainty > interval.right:
+            print("Invalid value!")
+            print("Please input a value between ", interval)
+        else:
+            break
+    return player_uncertainty
+def blue_message_selection():
+    blue_messages = get_blue_messages()
+    while True:
+        try:
+            print("1. lvl1 potency msg")
+            print("2. lvl2 potency msg")
+            print("3. lvl3 potency msg")
+            print("4. lvl4 potency msg")
+            print("5. lvl5 potency msg")
+            selection = int(input("Pick a message to send to the green node: "))
+        except ValueError:
+            print("Invalid input!")
+        if selection < 1 or selection > 5:
+            print("Invalid option!")
+        else:
+            break
+    if selection == 1:
+        player_message = blue_messages[0]
+    elif selection == 2:
+        player_message = blue_messages[1]
+    elif selection == 3:
+        player_message = blue_messages[2]
+    elif selection == 4:
+        player_message = blue_messages[3]
+    elif selection == 5:
+        player_message = blue_messages[4]
+
+    return player_message
+
+def blue_uncertainty_selection():
+    interval = get_interval()
+    while True:
+        try:
+            print("Please input an uncertainty value based on: ", interval)
+            player_uncertainty = float(input("Please input an uncertainty value based on: "))
+        except ValueError:
+            print("Invalid input!")
+        if player_uncertainty < interval.left or player_uncertainty > interval.right:
+            print("Invalid value!")
+            print("Please input a value between ", interval)
+        else:
+            break
+    return player_uncertainty
+
 def red_round(green_team, red_msg, red_uncertainty, minimax_sim):
     red_skip = False
     network = get_network()
+    player = get_player()
+    red_messages = get_red_messages()
+    interval = get_interval()
     # randomly pick a potent message - TESTING
     # random_msg = random.choice(red_messages)
 
     # red_msg = minimax(green_team, True, -float("inf"), float("inf"), 10)
     if not minimax_sim:
-        chosen_msg, chosen_uncertainty = minimax_redvsblue(green_team, True)
-        # red_msg = minimax(green_team, True, -float("inf"), float("inf"), 10)
-        red_msg = chosen_msg
-        red_uncertainty = chosen_uncertainty
+        # red agent
+        if player == 1:
+            chosen_msg, chosen_uncertainty = minimax_redvsblue(green_team, True)
+            red_msg = chosen_msg
+            red_uncertainty = chosen_uncertainty
+        # random red agent
+        elif player == 2:
+            red_msg = random.choice(red_messages)
+            red_uncertainty = round(random.uniform(interval.left, interval.right), 1)
+        # red agent
+        elif player == 3:
+            chosen_msg, chosen_uncertainty = minimax_redvsblue(green_team, True)
+            red_msg = chosen_msg
+            red_uncertainty = chosen_uncertainty
+        # red agent
+        elif player == 4:
+            chosen_msg, chosen_uncertainty = minimax_redvsblue(green_team, True)
+            red_msg = chosen_msg
+            red_uncertainty = chosen_uncertainty
+        # human player
+        elif player == 5:
+            red_msg = red_message_selection()
+            red_uncertainty = red_uncertainty_selection()
+
 
         # print("red agent message:", red_msg)
         # if red_uncertainty > 0:
@@ -166,10 +255,16 @@ def red_round(green_team, red_msg, red_uncertainty, minimax_sim):
     interval = get_interval()
     followers = 0
     # random_msg = red_msgs[4]
+
+
     # player_message = red_message_selection(red_msgs)
+
     for node in green_team.nodes():
-        # if not minimax_sim:
-        #     print("red agent -> ", red_msg, "-> green node #", node)
+        # time.sleep(1)
+        if not minimax_sim:
+            print("red agent -> ", red_msg, "-> green node #", node)
+            print("current uncertainty: ", red_uncertainty)
+            print("----------------------------------")
 
         # randomly pick a potent message - TESTING
         # random_msg = random.choice(red_msgs)
@@ -399,11 +494,11 @@ def update_rules(agent1_starting_opinion, agent1_starting_uncertainty, agent2_st
         return agent1_starting_opinion, agent1_starting_uncertainty, agent2_starting_opinion, agent2_starting_uncertainty
 
 def blue_round(green_team, blue_msg, blue_uncertainty, minimax_sim):
-    # correction messages
-    # blue_msgs = ["lvl1 potency", "lvl2 potency", "lvl3 potency", "lvl4 potency", "lvl5 potency"]
     # if blue team uses all of its energy, the game ends
     network = get_network()
+    player = get_player()
     interval = get_interval()
+    blue_messages = get_blue_messages()
     # random_msg = random.choice(blue_messages)
     energy = get_energy()
     round_followers = 0
@@ -411,15 +506,37 @@ def blue_round(green_team, blue_msg, blue_uncertainty, minimax_sim):
     highly_potent = 0
 
     if not minimax_sim:
-        chosen_msg, chosen_uncertainty = minimax_redvsblue(green_team, False)
-        # print("blue team:", chosen_msg)
-        blue_msg = chosen_msg
-        blue_uncertainty = chosen_uncertainty
+        # random blue agent
+        if player == 1:
+            blue_msg = random.choice(blue_messages)
+            blue_uncertainty = round(random.uniform(interval.left, interval.right), 1)
+        # blue agent
+        elif player == 2:
+            chosen_msg, chosen_uncertainty = minimax_redvsblue(green_team, False)
+            blue_msg = chosen_msg
+            blue_uncertainty = chosen_uncertainty
+        # blue agent
+        elif player == 3:
+            chosen_msg, chosen_uncertainty = minimax_redvsblue(green_team, False)
+            blue_msg = chosen_msg
+            blue_uncertainty = chosen_uncertainty
+        # human player
+        elif player == 4:
+            blue_msg = blue_message_selection()
+            blue_uncertainty = blue_uncertainty_selection()
+        # blue agent
+        elif player == 5:
+            chosen_msg, chosen_uncertainty = minimax_redvsblue(green_team, False)
+            blue_msg = chosen_msg
+            blue_uncertainty = chosen_uncertainty
 
 
     for node in green_team.nodes():
-        # if not minimax_sim:
-        #     print("blue agent -> ", blue_msg, "-> green node #", node)
+        # time.sleep(1)
+        if not minimax_sim:
+            print("blue agent -> ", blue_msg, "-> green node #", node)
+            print("current uncertainty: ", blue_uncertainty)
+            print("----------------------------------")
 
         # random_msg = random.choice(blue_msgs)
         a1_opinion, a1_uncertainty = blue_interaction(green_team, node, blue_uncertainty)
@@ -529,6 +646,11 @@ def grey_good_round(green_team, grey_msg, grey_node, grey_uncertainty, minimax_s
         grey_uncertainty = chosen_uncertainty
 
     for node in green_team.nodes():
+        if not minimax_sim:
+            print("grey-good agent -> ", grey_msg, "-> green node #", node)
+            print("current uncertainty: ", grey_uncertainty)
+            print("\n")
+
         # randomly pick a potent message - TESTING
 
         a1_opinion, a1_uncertainty = blue_interaction(green_team, node, grey_uncertainty)
@@ -627,6 +749,10 @@ def grey_bad_round(green_team, grey_msg, grey_node, grey_uncertainty, minimax_si
 
     # random_msg = random.choice(red_msgs)
     for node in green_team.nodes():
+        if not minimax_sim:
+            print("grey-bad agent -> ", grey_msg, "-> green node #", node)
+            print("current uncertainty: ", grey_uncertainty)
+            print("----------------------------------")
         # player_message = red_message_selection(red_msgs)
         a1_opinion, a1_uncertainty = red_interaction(green_team, node, grey_uncertainty)
         # update new values

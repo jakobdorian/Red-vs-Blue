@@ -6,6 +6,7 @@ energy = 0
 lifeline = False
 game_network = nx.Graph()
 uncertainty_interval = pd.Interval(-1.0, 1.0)
+player = 0
 # save the current green team
 def save_green(green):
     global green_team
@@ -53,3 +54,10 @@ def get_red_messages():
 def get_blue_messages():
     blue_msgs = ["lvl1 potency", "lvl2 potency", "lvl3 potency", "lvl4 potency", "lvl5 potency"]
     return blue_msgs
+
+def save_player(current_player):
+    global player
+    player = current_player
+
+def get_player():
+    return player
