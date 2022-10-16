@@ -1,11 +1,11 @@
 from teams import create_teams
-from election import start_game
+from election import start_election
 
 # runs simulation with random choices
 def simulation_random():
    print("simulation random------------")
    game_network, green_team, red_team, blue_team, grey_team, interval = create_teams()
-   start_game(game_network, green_team, red_team, blue_team, grey_team, interval)
+   start_election(game_network, green_team, red_team, blue_team, grey_team, interval)
 def simulation1():
    print("simulation1------------")
    i = 0
@@ -18,7 +18,7 @@ def simulation1():
       i = i + 1
       print(i)
       game_network, green_team, red_team, blue_team, grey_team = create_teams()
-      red_win, blue_win, tie, game_round = start_game(game_network, green_team, red_team, blue_team, grey_team)
+      red_win, blue_win, tie, game_round = start_election(game_network, green_team, red_team, blue_team, grey_team)
 
       red_wins = red_wins + red_win
       blue_wins = blue_wins + blue_win
