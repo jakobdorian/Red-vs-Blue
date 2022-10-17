@@ -1,11 +1,10 @@
+# CITS3001 Project by Jakob Kuriata (23278189)
 import networkx as nx
 import matplotlib.pyplot as plt
 import random
 from random import choice, sample
 from helper import save_green, get_green, save_energy, get_energy, clear_energy, save_lifeline, get_lifeline, save_network, get_network, save_interval, get_interval, get_red_messages, get_blue_messages, get_player, save_player
 import copy
-import pandas as pd
-import numpy as np
 import time
 
 RED_NODE = 26

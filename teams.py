@@ -1,7 +1,6 @@
+# CITS3001 Project by Jakob Kuriata (23278189)
 import pandas as pd
-import matplotlib.pyplot as plt
 import networkx as nx
-import numpy as np
 import random
 def create_teams(uncertainty_interval):
     print("generating teams...")

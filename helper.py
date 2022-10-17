@@ -1,3 +1,4 @@
+# CITS3001 Project by Jakob Kuriata (23278189)
 import networkx as nx
 import pandas as pd
 

@@ -1,3 +1,4 @@
+# CITS3001 Project by Jakob Kuriata (23278189)
 from teams import create_teams, choose_interval
 from election import start_election
 
