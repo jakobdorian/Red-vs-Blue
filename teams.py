@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 import random
-def create_teams():
+def create_teams(uncertainty_interval):
     print("generating teams...")
 
     Graphtype = nx.Graph()
@@ -30,13 +30,6 @@ def create_teams():
             nx.set_node_attributes(greyTeam_graph, {node: "good"}, name="allegiance")
         elif node == 28 or node == 31 or node == 33 or node == 35 or node == 37:
             nx.set_node_attributes(greyTeam_graph, {node: "bad"}, name="allegiance")
-
-    # player_interval = get_interval()
-    # broad interval
-    uncertainty_interval = pd.Interval(-1.0, 1.0)
-    # uncertainty_interval = choose_interval()
-    # tight interval
-    # uncertainty_interval = pd.Interval(-0.1, 0.1)
 
     for node in greenTeam_graph.nodes():
         random_opinion = random.choice([0, 1])
@@ -68,8 +61,8 @@ def choose_interval():
     while True:
         try:
             print("Default uncertainty interval is (-1, 1)")
-            player_interval_left = float(input('Input an  left uncertainty interval for the game: '))
-            player_interval_right = float(input('Input an  right uncertainty interval for the game: '))
+            player_interval_left = float(input('Input a left uncertainty interval for the game: '))
+            player_interval_right = float(input('Input a right uncertainty interval for the game: '))
         except ValueError:
             print("Invalid value!")
             print("Please enter a valid float number..")
@@ -77,6 +70,7 @@ def choose_interval():
             print("Invalid input!")
         else:
             break
-        player_interval = pd.Interval(player_interval_left, player_interval_right)
-        return player_interval
+    player_interval = pd.Interval(player_interval_left, player_interval_right)
+    print("chosen uncertainty interval: ", player_interval)
+    return player_interval
 

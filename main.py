@@ -1,7 +1,9 @@
-from teams import create_teams
+from teams import create_teams, choose_interval
 from election import start_election
 
 def game_start():
+    uncertainty_interval = choose_interval()
+
     while True:
         try:
             print("The election is about to begin!")
@@ -24,63 +26,63 @@ def game_start():
 
     if selection == 1:
         print("Scenario 1 - red agent vs random blue agent")
-        scenario_1()
+        scenario_1(uncertainty_interval)
     elif selection == 2:
         print("Scenario 2 - blue agent vs random red agent")
-        scenario_2()
+        scenario_2(uncertainty_interval)
     elif selection == 3:
         print("Scenario 3 - red agent vs blue agent")
-        scenario_3()
+        scenario_3(uncertainty_interval)
     elif selection == 4:
         print("Scenario 4 - player (blue) vs red agent")
-        scenario_4()
+        scenario_4(uncertainty_interval)
     elif selection == 5:
         print("Scenario 5 - player (red) vs blue agent")
-        scenario_5()
+        scenario_5(uncertainty_interval)
     elif selection == 6:
         print("Test 1 - red agent vs random blue agent (100 simulations)")
-        test_1()
+        test_1(uncertainty_interval)
     elif selection == 7:
         print("Test 2 - blue agent vs random red agent (100 simulations)")
-        test_2()
+        test_2(uncertainty_interval)
     elif selection == 8:
         print("Test 3 - red agent vs blue agent (100 simulations)")
-        test_3()
+        test_3(uncertainty_interval)
     elif selection == 9:
         print("Exiting game...")
         quit()
 
-def scenario_1():
+def scenario_1(uncertainty_interval):
     player = 1
 
-    game_network, green_team, red_team, blue_team, grey_team, interval = create_teams()
+    game_network, green_team, red_team, blue_team, grey_team, interval = create_teams(uncertainty_interval)
     start_election(game_network, green_team, red_team, blue_team, grey_team, interval, player)
 
-def scenario_2():
+def scenario_2(uncertainty_interval):
     player = 2
 
-    game_network, green_team, red_team, blue_team, grey_team, interval = create_teams()
+    game_network, green_team, red_team, blue_team, grey_team, interval = create_teams(uncertainty_interval)
     start_election(game_network, green_team, red_team, blue_team, grey_team, interval, player)
 
-def scenario_3():
+def scenario_3(uncertainty_interval):
     player = 3
 
-    game_network, green_team, red_team, blue_team, grey_team, interval = create_teams()
+    game_network, green_team, red_team, blue_team, grey_team, interval = create_teams(uncertainty_interval)
     start_election(game_network, green_team, red_team, blue_team, grey_team, interval, player)
 
-def scenario_4():
+def scenario_4(uncertainty_interval):
     player = 4
 
-    game_network, green_team, red_team, blue_team, grey_team, interval = create_teams()
+    game_network, green_team, red_team, blue_team, grey_team, interval = create_teams(uncertainty_interval)
     start_election(game_network, green_team, red_team, blue_team, grey_team, interval, player)
 
-def scenario_5():
+def scenario_5(uncertainty_interval):
     player = 5
 
-    game_network, green_team, red_team, blue_team, grey_team, interval = create_teams()
+    game_network, green_team, red_team, blue_team, grey_team, interval = create_teams(uncertainty_interval)
     start_election(game_network, green_team, red_team, blue_team, grey_team, interval, player)
 
-def test_1():
+def test_1(uncertainty_interval):
     player = 6
     i = 0
     red_wins = 0
@@ -89,8 +91,7 @@ def test_1():
     game_rounds = 0
     while i < 100:
         i = i + 1
-        print(i)
-        game_network, green_team, red_team, blue_team, grey_team, interval = create_teams()
+        game_network, green_team, red_team, blue_team, grey_team, interval = create_teams(uncertainty_interval)
         red_win, blue_win, tie, game_round = start_election(game_network, green_team, red_team, blue_team, grey_team, interval, player)
 
         red_wins = red_wins + red_win
@@ -104,7 +105,7 @@ def test_1():
     print("total blue wins: ", blue_wins)
     print("total ties: ", ties)
     print("total game rounds: ", game_rounds)
-def test_2():
+def test_2(uncertainty_interval):
     player = 7
     i = 0
     red_wins = 0
@@ -113,8 +114,7 @@ def test_2():
     game_rounds = 0
     while i < 100:
         i = i + 1
-        print(i)
-        game_network, green_team, red_team, blue_team, grey_team, interval = create_teams()
+        game_network, green_team, red_team, blue_team, grey_team, interval = create_teams(uncertainty_interval)
         red_win, blue_win, tie, game_round = start_election(game_network, green_team, red_team, blue_team, grey_team, interval, player)
 
         red_wins = red_wins + red_win
@@ -130,7 +130,7 @@ def test_2():
     print("total game rounds: ", game_rounds)
 
 
-def test_3():
+def test_3(uncertainty_interval):
     player = 8
     i = 0
     red_wins = 0
@@ -139,8 +139,7 @@ def test_3():
     game_rounds = 0
     while i < 100:
         i = i + 1
-        print(i)
-        game_network, green_team, red_team, blue_team, grey_team, interval = create_teams()
+        game_network, green_team, red_team, blue_team, grey_team, interval = create_teams(uncertainty_interval)
         red_win, blue_win, tie, game_round = start_election(game_network, green_team, red_team, blue_team, grey_team, interval, player)
 
         red_wins = red_wins + red_win

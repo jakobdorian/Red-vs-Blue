@@ -12,6 +12,7 @@ RED_NODE = 26
 BLUE_NODE = 27
 minimax_sim = False
 def start_election(network, green_team, red_team, blue_team, grey_team, uncertainty_interval, player):
+    print("\n")
     print("Election is starting...")
     lifeline = False
     clear_energy()
@@ -32,7 +33,7 @@ def start_election(network, green_team, red_team, blue_team, grey_team, uncertai
     # visualize_game(network)
 
     while True:
-        # time.sleep(1)
+        time.sleep(0.3)
         green = get_green()
         # round where all green agents interact with each of their neighbours, potentially changing their opinions and uncertainty
         green_round(green)
@@ -81,14 +82,10 @@ def start_election(network, green_team, red_team, blue_team, grey_team, uncertai
             else:
                 game_result(green, rounds)
                 clear_energy()
+                network = get_network()
+                visualize_game(network)
                 quit()
-            # red_wins, blue_wins, ties, game_rounds = get_result(green, rounds)
-            # return red_wins, blue_wins, ties, game_rounds
-            # break
-
-            # network = get_network()
-            # visualize_game(network)
-
+            # test scenarios
             if player == 6 or player == 7 or player == 8:
                 red_wins, blue_wins, ties, game_rounds = get_result(green, rounds)
                 return red_wins, blue_wins, ties, game_rounds
@@ -420,20 +417,20 @@ def update_rules(agent1_starting_opinion, agent1_starting_uncertainty, agent2_st
     if agent1_starting_opinion == 1 and agent1_starting_uncertainty > interval.mid and agent2_starting_opinion == 1 and agent2_starting_uncertainty > interval.mid:
         # print("1. both agents want to vote and have a highly uncertain. they will change their votes")
         agent1_updated_opinion = agent1_starting_opinion
-        agent1_updated_uncertainty = agent1_starting_uncertainty - 0.1
+        agent1_updated_uncertainty = interval.left
 
         agent2_updated_opinion = agent2_starting_opinion
-        agent2_updated_uncertainty = agent2_starting_uncertainty - 0.1
+        agent2_updated_uncertainty = interval.left
 
         return agent1_updated_opinion, agent1_updated_uncertainty, agent2_updated_opinion, agent2_updated_uncertainty
     # both agents don't want to vote and have a low uncertainty
     elif agent1_starting_opinion == 0 and agent1_starting_uncertainty < interval.mid and agent2_starting_opinion == 0 and agent2_starting_uncertainty < interval.mid:
         # print("2. both agents do not want to vote and are certain of their current vote")
         agent1_updated_opinion = agent1_starting_opinion
-        agent1_updated_uncertainty = agent1_starting_uncertainty + 0.1
+        agent1_updated_uncertainty = interval.right
 
         agent2_updated_opinion = agent2_starting_opinion
-        agent2_updated_uncertainty = agent2_starting_uncertainty + 0.1
+        agent2_updated_uncertainty = interval.right
 
         return agent1_updated_opinion, agent1_updated_uncertainty, agent2_updated_opinion, agent2_updated_uncertainty
     # agent 1 wants to vote but agent 2 does not, if the agent1's uncertainty is greater than agent2's uncertainty,
@@ -443,10 +440,10 @@ def update_rules(agent1_starting_opinion, agent1_starting_uncertainty, agent2_st
         if agent1_starting_uncertainty > agent2_starting_uncertainty:
             # print("3. agent1 convinces agent2 to vote")
             agent1_updated_opinion = agent1_starting_opinion
-            agent1_updated_uncertainty = agent1_starting_uncertainty + 0.1
+            agent1_updated_uncertainty = interval.right
 
             agent2_updated_opinion = agent1_updated_opinion
-            agent2_updated_uncertainty = agent2_starting_uncertainty + 0.1
+            agent2_updated_uncertainty = interval.right
 
             return agent1_updated_opinion, agent1_updated_uncertainty, agent2_updated_opinion, agent2_updated_uncertainty
 
@@ -462,20 +459,20 @@ def update_rules(agent1_starting_opinion, agent1_starting_uncertainty, agent2_st
     elif agent1_starting_opinion == 0 and agent1_starting_uncertainty < interval.mid and agent2_starting_opinion == 1 and agent2_starting_uncertainty > interval.mid:
         # print("4. agent2 convinces agent1 to vote")
         agent1_updated_opinion = 1
-        agent1_updated_uncertainty = agent1_starting_uncertainty + 0.2
+        agent1_updated_uncertainty = interval.right
 
         agent2_updated_opinion = agent2_starting_opinion
-        agent2_updated_uncertainty = agent2_starting_uncertainty + 0.1
+        agent2_updated_uncertainty = interval.right
 
         return agent1_updated_opinion, agent1_updated_uncertainty, agent2_updated_opinion, agent2_updated_uncertainty
     # both agents are highly uncertain and now want to vote
     elif agent1_starting_opinion == 0 and agent1_starting_uncertainty > interval.mid and agent2_starting_opinion == 0 and agent2_starting_uncertainty > interval.mid:
         # print("5. both agents are highly uncertain and now want to vote")
         agent1_updated_opinion = 1
-        agent1_updated_uncertainty = agent1_starting_uncertainty - 0.2
+        agent1_updated_uncertainty = interval.left
 
         agent2_updated_opinion = 1
-        agent2_updated_uncertainty = agent2_starting_uncertainty - 0.2
+        agent2_updated_uncertainty = interval.left
 
         return agent1_updated_opinion, agent1_updated_uncertainty, agent2_updated_opinion, agent2_updated_uncertainty
     # if the agents do not meet any of the conditions, return the original values
@@ -1119,7 +1116,6 @@ def minimax_goodvsbad(network, bad_agent):
 def find_best(message_followers):
     highest_value = max(message_followers)
     index = message_followers.index(highest_value)
-    # print("index:", index)
     return index
 
 
