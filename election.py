@@ -261,13 +261,11 @@ def red_round(green_team, red_msg, red_uncertainty, minimax_sim):
         nx.set_node_attributes(green_team, {node: a1_opinion}, name="opinion")
         nx.set_node_attributes(green_team, {node: a1_uncertainty}, name="uncertainty")
         # time.sleep(0.5)
-        print("new uncertainty: ", green_team.nodes[node]["uncertainty"])
 
         # node wants to vote
         if green_team.nodes[node]["opinion"] == 1:
             # node is certain
             if green_team.nodes[node]["uncertainty"] < interval.mid:
-                print("true")
                 if red_msg == "lvl1 potency":
                     chance = random.choice([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
                     if chance == 1:
