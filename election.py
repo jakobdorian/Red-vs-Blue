@@ -33,7 +33,9 @@ def start_election(network, green_team, red_team, blue_team, grey_team, uncertai
     # visualize_game(network)
 
     while True:
-        time.sleep(0.3)
+        if player == 1 or player == 2 or player == 3 or player == 4 or player == 5:
+            time.sleep(0.3)
+
         green = get_green()
         # round where all green agents interact with each of their neighbours, potentially changing their opinions and uncertainty
         green_round(green)
@@ -651,7 +653,7 @@ def grey_good_round(green_team, grey_msg, grey_node, grey_uncertainty, minimax_s
         if not minimax_sim:
             print("grey-good agent -> ", grey_msg, "-> green node #", node)
             print("current uncertainty: ", grey_uncertainty)
-            print("\n")
+            print("----------------------------------")
 
         # randomly pick a potent message - TESTING
 

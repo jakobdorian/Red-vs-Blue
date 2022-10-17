@@ -6,6 +6,7 @@ def game_start():
 
     while True:
         try:
+            print("\n")
             print("The election is about to begin!")
             print("1. Scenario 1 - red agent vs random blue agent")
             print("2. Scenario 2 - blue agent vs random red agent")
