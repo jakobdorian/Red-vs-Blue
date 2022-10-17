@@ -1,7 +1,6 @@
 from teams import create_teams
 from election import start_election
 
-
 def game_start():
     while True:
         try:

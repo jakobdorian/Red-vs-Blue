@@ -34,26 +34,13 @@ def start_election(network, green_team, red_team, blue_team, grey_team, uncertai
     while True:
         # time.sleep(1)
         green = get_green()
-
         # round where all green agents interact with each of their neighbours, potentially changing their opinions and uncertainty
         green_round(green)
-        # check_voters()
         rounds = rounds + 1
-
         green = get_green()
-
-        # round where the red agent interacts with all members in green team, potentially affecting their opinions
-        # red_skip = red_round(green, red_team)
-
         red_round(green, red_msgs, temp_interval, minimax_sim)
         rounds = rounds + 1
-
-        # if red_skip:
-        #     print("red skip")
-
         green = get_green()
-        # blue_energy = get_energy()
-        # print(blue_energy)
 
         # round where the blue agent interacts with all members of the green team, potentially affecting their opinions
         # the goal of the blue agent is to convince those who are following the red team to follow them instead
@@ -67,10 +54,8 @@ def start_election(network, green_team, red_team, blue_team, grey_team, uncertai
         rounds = rounds + 1
 
         current_energy = get_energy()
-        # print(current_energy)
 
         green = get_green()
-        # check_current_state(green)
         lifeline = get_lifeline()
         if current_energy >= 50 and lifeline == False:
             lifeline = True
@@ -220,6 +205,7 @@ def red_round(green_team, red_msg, red_uncertainty, minimax_sim):
     red_messages = get_red_messages()
     interval = get_interval()
     highly_potent = 0
+    energy = get_energy()
     # randomly pick a potent message - TESTING
     # random_msg = random.choice(red_messages)
 
@@ -260,42 +246,30 @@ def red_round(green_team, red_msg, red_uncertainty, minimax_sim):
             red_msg = chosen_msg
             red_uncertainty = chosen_uncertainty
 
-
-        # print("red agent message:", red_msg)
-        # if red_uncertainty > 0:
-        #     print("red agent is uncertain")
-        # elif red_uncertainty < 0:
-        #     print("red agent is certain")
-
-    # red_msg = chosen_msg
-
     interval = get_interval()
     followers = 0
-    # random_msg = red_msgs[4]
-
-
-    # player_message = red_message_selection(red_msgs)
 
     for node in green_team.nodes():
         # time.sleep(1)
         if not minimax_sim:
+            print("current energy: ", energy, "/ 100")
             print("red agent -> ", red_msg, "-> green node #", node)
             print("current uncertainty: ", red_uncertainty)
             print("----------------------------------")
 
-        # randomly pick a potent message - TESTING
-        # random_msg = random.choice(red_msgs)
-        # current_redmsg = red_msgs[4]
         a1_opinion, a1_uncertainty = red_interaction(green_team, node, red_uncertainty)
 
         # update new values
         nx.set_node_attributes(green_team, {node: a1_opinion}, name="opinion")
         nx.set_node_attributes(green_team, {node: a1_uncertainty}, name="uncertainty")
+        # time.sleep(0.5)
+        print("new uncertainty: ", green_team.nodes[node]["uncertainty"])
 
         # node wants to vote
         if green_team.nodes[node]["opinion"] == 1:
             # node is certain
             if green_team.nodes[node]["uncertainty"] < interval.mid:
+                print("true")
                 if red_msg == "lvl1 potency":
                     chance = random.choice([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
                     if chance == 1:
@@ -564,6 +538,7 @@ def blue_round(green_team, blue_msg, blue_uncertainty, minimax_sim):
     for node in green_team.nodes():
         # time.sleep(1)
         if not minimax_sim:
+            print("current energy: ", energy, "/100")
             print("blue agent -> ", blue_msg, "-> green node #", node)
             print("current uncertainty: ", blue_uncertainty)
             print("----------------------------------")
@@ -1111,7 +1086,6 @@ def minimax_goodvsbad(network, bad_agent):
             temp3 = temp2 + most_followers
             messages_followers[temp] = temp3
         best_index = find_best(messages_followers)
-        print(best_index)
         best_message = red_messages[best_index]
         return best_message, best_uncertainty
     # blue team

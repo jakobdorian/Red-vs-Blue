@@ -33,14 +33,14 @@ def create_teams():
 
     # player_interval = get_interval()
     # broad interval
-    interval_test = pd.Interval(-1.0, 1.0)
-
+    uncertainty_interval = pd.Interval(-1.0, 1.0)
+    # uncertainty_interval = choose_interval()
     # tight interval
-    # interval_test = pd.Interval(-0.1, 0.1)
+    # uncertainty_interval = pd.Interval(-0.1, 0.1)
 
     for node in greenTeam_graph.nodes():
         random_opinion = random.choice([0, 1])
-        random_interval = round(random.uniform(interval_test.left, interval_test.right), 1)
+        random_interval = round(random.uniform(uncertainty_interval.left, uncertainty_interval.right), 1)
 
         nx.set_node_attributes(greenTeam_graph, {node: random_opinion}, name="opinion")
         nx.set_node_attributes(greenTeam_graph, {node: random_interval}, name="uncertainty")
@@ -62,10 +62,21 @@ def create_teams():
     temp2 = nx.compose(temp, greyTeam_graph)
     game_network = nx.compose(greenTeam_graph, temp2)
 
-    return game_network, greenTeam_graph, redTeam_graph, blueTeam_graph, greyTeam_graph, interval_test
+    return game_network, greenTeam_graph, redTeam_graph, blueTeam_graph, greyTeam_graph, uncertainty_interval
 
-def get_interval():
-    print("default uncertainty interval is (-1, 1)")
-    player_interval = input('input an uncertainty interval for the game: ')
+def choose_interval():
+    while True:
+        try:
+            print("Default uncertainty interval is (-1, 1)")
+            player_interval_left = float(input('Input an  left uncertainty interval for the game: '))
+            player_interval_right = float(input('Input an  right uncertainty interval for the game: '))
+        except ValueError:
+            print("Invalid value!")
+            print("Please enter a valid float number..")
+        if player_interval_left > player_interval_right and player_interval_left == player_interval_right:
+            print("Invalid input!")
+        else:
+            break
+        player_interval = pd.Interval(player_interval_left, player_interval_right)
+        return player_interval
 
-    return player_interval
